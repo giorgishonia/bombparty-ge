@@ -483,13 +483,13 @@
         }
         
         .player-avatar {
-            width: 80px;
-            height: 80px;
-            border-radius: 20px;
+            width: 72px;
+            height: 72px;
+            border-radius: 18px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 2.5rem;
+            font-size: 2.2rem;
             border: 4px solid rgba(255, 255, 255, 0.1);
             transition: all 0.3s;
             position: relative;
@@ -505,11 +505,11 @@
         }
         
         .player-node.active .player-avatar {
-            transform: scale(1.2);
+            transform: scale(1.15);
             border-color: var(--accent-gold);
             box-shadow: 
-                0 0 30px rgba(255, 215, 0, 0.5),
-                0 0 60px rgba(255, 215, 0, 0.3);
+                0 0 25px rgba(255, 215, 0, 0.5),
+                0 0 50px rgba(255, 215, 0, 0.3);
         }
         
         .player-node.dead .player-avatar {
@@ -628,15 +628,16 @@
             display: flex;
             flex-direction: column;
             align-items: center;
+            margin-top: -90px; /* Match the player circle offset */
         }
         
         .bomb-container {
             position: relative;
-            width: 200px;
-            height: 200px;
+            width: 180px;
+            height: 180px;
             background: radial-gradient(circle at 30% 30%, #3a3a3a, #1a1a1a);
             border-radius: 50%;
-            border: 8px solid #2a2a2a;
+            border: 7px solid #2a2a2a;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -659,11 +660,11 @@
         
         .bomb-wick {
             position: absolute;
-            top: -60px;
+            top: -55px;
             left: 50%;
             transform: translateX(-50%);
-            width: 80px;
-            height: 80px;
+            width: 70px;
+            height: 70px;
             z-index: 35;
         }
         
@@ -676,7 +677,7 @@
         }
         
         .syllable-display {
-            font-size: 3rem;
+            font-size: 2.6rem;
             font-weight: 900;
             color: white;
             font-family: 'Noto Sans Georgian', sans-serif;
@@ -690,8 +691,8 @@
         }
         
         .timer-display {
-            margin-top: 20px;
-            font-size: 2rem;
+            margin-top: 16px;
+            font-size: 1.8rem;
             font-weight: 800;
             font-family: 'Space Grotesk', monospace;
             transition: color 0.3s;
@@ -710,8 +711,12 @@
         /* Arrow Spinner */
         .arrow-spinner {
             position: absolute;
-            width: 500px;
-            height: 500px;
+            width: 340px;
+            height: 340px;
+            top: calc(50% - 90px); /* Match player circle offset */
+            left: 50%;
+            margin-left: -170px;
+            margin-top: -170px;
             transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
             pointer-events: none;
             z-index: 15;
@@ -720,10 +725,10 @@
         .arrow-graphic {
             position: absolute;
             top: 50%;
-            right: 0;
+            right: 10px;
             transform: translateY(-50%);
-            width: 100px;
-            height: 60px;
+            width: 70px;
+            height: 45px;
             filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.4));
         }
         
@@ -733,30 +738,32 @@
             bottom: 0;
             left: 0;
             right: 0;
-            padding: 20px;
-            background: linear-gradient(to top, rgba(0, 0, 0, 0.8), transparent);
+            padding: 30px 20px 35px;
+            background: linear-gradient(to top, rgba(13, 10, 18, 0.98) 0%, rgba(13, 10, 18, 0.85) 60%, transparent 100%);
             display: flex;
             justify-content: center;
+            z-index: 60;
         }
         
         .game-input {
             width: 100%;
-            max-width: 400px;
-            padding: 16px 24px;
-            background: rgba(0, 0, 0, 0.6);
-            border: 3px solid rgba(255, 255, 255, 0.2);
+            max-width: 420px;
+            padding: 18px 28px;
+            background: rgba(0, 0, 0, 0.5);
+            border: 3px solid var(--accent-cyan);
             border-radius: 50px;
             color: white;
-            font-size: 1.4rem;
+            font-size: 1.3rem;
             font-family: 'Noto Sans Georgian', sans-serif;
             text-align: center;
             outline: none;
             transition: all 0.3s;
+            box-shadow: 0 0 20px rgba(0, 245, 212, 0.15);
         }
         
         .game-input:focus {
             border-color: var(--accent-cyan);
-            box-shadow: 0 0 30px rgba(0, 245, 212, 0.3);
+            box-shadow: 0 0 35px rgba(0, 245, 212, 0.4);
             transform: scale(1.02);
         }
         
@@ -1000,7 +1007,7 @@
         /* Toast Notifications */
         .toast-container {
             position: fixed;
-            bottom: 100px;
+            bottom: 120px;
             left: 50%;
             transform: translateX(-50%);
             z-index: 1000;
@@ -1034,14 +1041,70 @@
             to { opacity: 1; transform: translateY(0); }
         }
         
-        /* Responsive */
+        /* Responsive - Tablets */
         @media (max-width: 768px) {
             .logo-title { font-size: 2.5rem; }
             .logo-bomb { font-size: 60px; }
-            .player-avatar { width: 60px; height: 60px; font-size: 1.8rem; }
+            .player-avatar { width: 58px; height: 58px; font-size: 1.6rem; }
             .bomb-container { width: 140px; height: 140px; }
             .syllable-display { font-size: 2rem; }
-            .arrow-spinner { width: 350px; height: 350px; }
+            .timer-display { font-size: 1.5rem; }
+            .arrow-spinner { 
+                width: 260px; 
+                height: 260px; 
+                margin-left: -130px;
+                margin-top: -130px;
+                top: calc(50% - 70px);
+            }
+            .arrow-graphic {
+                width: 50px;
+                height: 32px;
+                right: 8px;
+            }
+            .center-bomb {
+                margin-top: -70px;
+            }
+            .game-input-wrapper {
+                padding: 20px 16px 24px;
+            }
+            .game-input {
+                font-size: 1.1rem;
+                padding: 14px 20px;
+                max-width: 340px;
+            }
+            .toast-container {
+                bottom: 100px;
+            }
+        }
+        
+        /* Responsive - Small phones */
+        @media (max-width: 480px) {
+            .player-avatar { width: 50px; height: 50px; font-size: 1.4rem; border-radius: 14px; }
+            .player-name { font-size: 0.75rem; }
+            .bomb-container { width: 120px; height: 120px; }
+            .syllable-display { font-size: 1.7rem; }
+            .timer-display { font-size: 1.3rem; margin-top: 12px; }
+            .bomb-wick { width: 55px; height: 55px; top: -45px; }
+            .arrow-spinner { 
+                width: 220px; 
+                height: 220px; 
+                margin-left: -110px;
+                margin-top: -110px;
+                top: calc(50% - 60px);
+            }
+            .arrow-graphic {
+                width: 40px;
+                height: 26px;
+                right: 6px;
+            }
+            .center-bomb {
+                margin-top: -60px;
+            }
+            .game-input {
+                font-size: 1rem;
+                padding: 12px 18px;
+                max-width: 300px;
+            }
         }
     </style>
 </head>
@@ -1220,8 +1283,8 @@
 <script>
 // ===================== GAME CLIENT =====================
 
-// Connect to the Node.js server - use localhost:3000 or same origin if served from Node
-const SERVER_URL = 'https://d3271b0ce9b3.ngrok-free.app';
+// Auto-detect server URL - works for local dev and production
+const SERVER_URL = window.location.origin;
 
 const socket = io(SERVER_URL, {
     reconnection: true,
@@ -1673,8 +1736,9 @@ function renderWaitingPlayers(players) {
 function renderPlayersCircle(players, currentTurnIndex, hostId) {
     const container = document.getElementById('players-circle');
     const centerX = window.innerWidth / 2;
-    const centerY = window.innerHeight / 2;
-    const radius = Math.min(window.innerWidth, window.innerHeight) * 0.35;
+    const yOffset = window.innerHeight < 700 ? 70 : 90; // Responsive offset
+    const centerY = (window.innerHeight / 2) - yOffset; // Offset upward to avoid input overlap
+    const radius = Math.min(window.innerWidth, window.innerHeight) * 0.28;
     
     container.innerHTML = players.map((player, index) => {
         const angleDeg = (index * (360 / players.length)) - 90;

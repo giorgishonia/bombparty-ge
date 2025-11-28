@@ -27,8 +27,8 @@ app.use((req, res, next) => {
     next();
 });
 
-// Serve static files
-app.use(express.static(__dirname));
+// Serve static files from public folder
+app.use(express.static(path.join(__dirname, 'public')));
 
 // Load Georgian words
 let WORDS = [];
