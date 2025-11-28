@@ -2,7 +2,7 @@
 <html lang="ka">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>💣 Bomb Party - Georgian Edition</title>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Georgian:wght@400;600;800;900&family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
@@ -35,6 +35,7 @@
             background: linear-gradient(135deg, var(--bg-gradient-start), var(--bg-gradient-end));
             color: var(--text-primary);
             min-height: 100vh;
+            min-height: 100dvh; /* Dynamic viewport height for mobile keyboards */
             overflow-x: hidden;
         }
         
@@ -73,12 +74,33 @@
             position: relative;
             z-index: 10;
             min-height: 100vh;
+            min-height: 100dvh;
             padding: 20px;
+            padding-bottom: max(20px, env(safe-area-inset-bottom));
         }
         
         .screen.active {
             display: flex;
             flex-direction: column;
+        }
+        
+        @media (max-height: 600px) {
+            .screen {
+                min-height: auto;
+                padding: 15px;
+            }
+            .logo-container {
+                margin-bottom: 20px;
+            }
+            .logo-bomb {
+                font-size: 50px;
+            }
+            .logo-title {
+                font-size: 2rem;
+            }
+            .home-form {
+                padding: 24px;
+            }
         }
         
         /* ============ HOME SCREEN ============ */
@@ -165,6 +187,13 @@
             color: rgba(255, 255, 255, 0.3);
         }
         
+        /* Prevent zoom on mobile input focus */
+        @media (max-width: 768px) {
+            .form-input, .game-input {
+                font-size: 16px !important; /* Prevents iOS zoom */
+            }
+        }
+        
         .btn {
             display: inline-flex;
             align-items: center;
@@ -222,6 +251,21 @@
         #lobby-screen {
             align-items: center;
             padding-top: 40px;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+        
+        @media (max-height: 600px) {
+            #lobby-screen {
+                padding-top: 20px;
+            }
+            .screen-header {
+                flex-wrap: wrap;
+                gap: 10px;
+            }
+            .screen-title {
+                font-size: 1.5rem;
+            }
         }
         
         .screen-header {
@@ -462,6 +506,27 @@
             position: relative;
             overflow: hidden;
             min-height: calc(100vh - 180px);
+            min-height: calc(100dvh - 180px); /* Dynamic viewport for mobile */
+        }
+        
+        /* Mobile keyboard optimization */
+        .game-arena.keyboard-open {
+            min-height: auto;
+            padding-bottom: 20px;
+        }
+        
+        .game-arena.keyboard-open .center-bomb {
+            transform: scale(0.75);
+            margin-top: -40px;
+        }
+        
+        .game-arena.keyboard-open .players-circle {
+            transform: scale(0.7);
+            transform-origin: center top;
+        }
+        
+        .game-arena.keyboard-open .arrow-spinner {
+            transform: scale(0.7);
         }
         
         /* Player Circle */
@@ -583,6 +648,18 @@
         
         .player-node.active .player-name {
             color: var(--accent-gold);
+        }
+        
+        .player-score {
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: var(--accent-cyan);
+            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.8);
+            margin-top: 2px;
+        }
+        
+        .player-node.dead .player-score {
+            opacity: 0.5;
         }
         
         .host-badge {
@@ -743,10 +820,19 @@
             left: 0;
             right: 0;
             padding: 30px 20px 35px;
+            padding-bottom: max(35px, env(safe-area-inset-bottom)); /* iOS safe area */
             background: linear-gradient(to top, rgba(13, 10, 18, 0.98) 0%, rgba(13, 10, 18, 0.85) 60%, transparent 100%);
             display: flex;
             justify-content: center;
             z-index: 60;
+            transition: all 0.3s ease;
+        }
+        
+        .game-input-wrapper.keyboard-open {
+            position: fixed;
+            bottom: 0;
+            background: rgba(13, 10, 18, 0.98);
+            padding: 15px 20px;
         }
         
         .game-input {
@@ -973,7 +1059,84 @@
         .winner-name {
             font-size: 1.5rem;
             color: var(--text-secondary);
-            margin-bottom: 40px;
+            margin-bottom: 8px;
+        }
+        
+        .winner-score {
+            font-size: 2rem;
+            font-weight: 800;
+            color: var(--accent-gold);
+            margin-bottom: 30px;
+        }
+        
+        .rankings-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            max-width: 400px;
+            width: 100%;
+            margin-bottom: 30px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        
+        .ranking-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .ranking-item.first {
+            background: linear-gradient(135deg, rgba(255, 215, 0, 0.2), rgba(255, 107, 53, 0.1));
+            border-color: var(--accent-gold);
+        }
+        
+        .ranking-item.second {
+            background: rgba(192, 192, 192, 0.1);
+            border-color: #c0c0c0;
+        }
+        
+        .ranking-item.third {
+            background: rgba(205, 127, 50, 0.1);
+            border-color: #cd7f32;
+        }
+        
+        .ranking-position {
+            font-size: 1.2rem;
+            font-weight: 800;
+            min-width: 30px;
+        }
+        
+        .ranking-position.gold { color: var(--accent-gold); }
+        .ranking-position.silver { color: #c0c0c0; }
+        .ranking-position.bronze { color: #cd7f32; }
+        
+        .ranking-avatar {
+            font-size: 1.5rem;
+        }
+        
+        .ranking-info {
+            flex: 1;
+        }
+        
+        .ranking-name {
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+        
+        .ranking-stats {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+        
+        .ranking-score {
+            font-weight: 800;
+            font-size: 1.1rem;
+            color: var(--accent-cyan);
         }
         
         /* Connection Status */
@@ -1108,6 +1271,51 @@
                 font-size: 1rem;
                 padding: 12px 18px;
                 max-width: 300px;
+            }
+        }
+        
+        /* Mobile landscape / keyboard open optimization */
+        @media (max-height: 500px) {
+            .game-header {
+                padding: 8px 16px;
+            }
+            .room-code {
+                padding: 6px 12px;
+                font-size: 0.9rem;
+            }
+            .game-arena {
+                min-height: auto;
+            }
+            .center-bomb {
+                transform: scale(0.6);
+                margin-top: -30px;
+            }
+            .players-circle {
+                transform: scale(0.55);
+            }
+            .arrow-spinner {
+                transform: scale(0.55);
+            }
+            .game-input-wrapper {
+                padding: 10px 16px 15px;
+            }
+            .game-input {
+                padding: 10px 16px;
+                font-size: 1rem;
+            }
+            .timer-display {
+                font-size: 1.1rem;
+                margin-top: 8px;
+            }
+            .waiting-overlay {
+                overflow-y: auto;
+                padding: 20px;
+            }
+            .waiting-title {
+                font-size: 1.5rem;
+            }
+            .settings-panel {
+                padding: 16px;
             }
         }
     </style>
@@ -1273,7 +1481,9 @@
                     <div class="winner-avatar" id="winner-avatar">🏆</div>
                     <h2 class="winner-title">WINNER!</h2>
                     <p class="winner-name" id="winner-name">Player Name</p>
+                    <p class="winner-score" id="winner-score">0 pts</p>
                 </div>
+                <div class="rankings-list" id="rankings-list"></div>
                 <button class="btn btn-primary" id="btn-play-again">🔄 Play Again</button>
             </div>
             
@@ -1617,7 +1827,7 @@ socket.on('game:word-rejected', (data) => {
 });
 
 socket.on('game:end', (data) => {
-    handleGameEnd(data.winner);
+    handleGameEnd(data.winner, data.rankings);
 });
 
 // ============ LOBBY RENDERING ============
@@ -1754,6 +1964,7 @@ function renderPlayersCircle(players, currentTurnIndex, hostId) {
         const isDead = player.lives <= 0;
         const isDisconnected = !player.isConnected;
         const isHost = player.id === hostId;
+        const score = player.score || 0;
         
         const classes = ['player-node'];
         if (isActive) classes.push('active');
@@ -1777,6 +1988,7 @@ function renderPlayersCircle(players, currentTurnIndex, hostId) {
                     ${isHost ? '<span class="host-badge">HOST</span>' : ''}
                 </div>
                 <div class="player-name">${escapeHtml(player.name)}</div>
+                <div class="player-score">${score} pts</div>
             </div>
         `;
     }).join('');
@@ -1867,7 +2079,8 @@ function handleWordSuccess(data) {
         spawnSuccess(rect.left + rect.width / 2, rect.top);
     }
     
-    showToast(`✓ ${data.word.toUpperCase()} (+${data.bonusTime}s)`, 'success');
+    // Show score gained instead of bonus time
+    showToast(`✓ ${data.word.toUpperCase()} +${data.bonusTime} pts`, 'success');
     
     // Clear input
     document.getElementById('game-input').value = '';
@@ -1880,15 +2093,41 @@ function handleWordRejected(reason) {
     showToast(reason, 'error');
 }
 
-function handleGameEnd(winner) {
+function handleGameEnd(winner, rankings = []) {
     const overlay = document.getElementById('game-over-overlay');
+    const rankingsList = document.getElementById('rankings-list');
     
     if (winner) {
         document.getElementById('winner-avatar').textContent = winner.avatar;
         document.getElementById('winner-name').textContent = winner.name + ' Wins!';
+        document.getElementById('winner-score').textContent = `${winner.score || 0} pts`;
     } else {
         document.getElementById('winner-avatar').textContent = '🤷';
         document.getElementById('winner-name').textContent = 'No Winner!';
+        document.getElementById('winner-score').textContent = '';
+    }
+    
+    // Render rankings
+    if (rankings.length > 0) {
+        rankingsList.innerHTML = rankings.map((player, index) => {
+            const positionClass = index === 0 ? 'gold' : index === 1 ? 'silver' : index === 2 ? 'bronze' : '';
+            const itemClass = index === 0 ? 'first' : index === 1 ? 'second' : index === 2 ? 'third' : '';
+            const medal = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : `#${index + 1}`;
+            
+            return `
+                <div class="ranking-item ${itemClass}">
+                    <span class="ranking-position ${positionClass}">${medal}</span>
+                    <span class="ranking-avatar">${player.avatar}</span>
+                    <div class="ranking-info">
+                        <div class="ranking-name">${escapeHtml(player.name)}</div>
+                        <div class="ranking-stats">${player.wordsCompleted || 0} words • ${player.lives} ❤️ left</div>
+                    </div>
+                    <span class="ranking-score">${player.score || 0}</span>
+                </div>
+            `;
+        }).join('');
+    } else {
+        rankingsList.innerHTML = '';
     }
     
     overlay.classList.add('active');
@@ -2067,7 +2306,63 @@ if (state.playerName) {
     document.getElementById('player-name').value = state.playerName;
 }
 
+// ============ MOBILE KEYBOARD HANDLING ============
+const gameArena = document.getElementById('game-arena');
+const gameInputWrapper = document.querySelector('.game-input-wrapper');
+
+// Detect if mobile device
+const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+if (isMobile) {
+    // Use visualViewport API for better keyboard detection
+    if (window.visualViewport) {
+        let initialHeight = window.visualViewport.height;
+        
+        window.visualViewport.addEventListener('resize', () => {
+            const currentHeight = window.visualViewport.height;
+            const keyboardOpen = currentHeight < initialHeight * 0.75;
+            
+            if (keyboardOpen) {
+                gameArena?.classList.add('keyboard-open');
+                gameInputWrapper?.classList.add('keyboard-open');
+            } else {
+                gameArena?.classList.remove('keyboard-open');
+                gameInputWrapper?.classList.remove('keyboard-open');
+                initialHeight = currentHeight; // Update for orientation changes
+            }
+        });
+    }
+    
+    // Scroll input into view when focused
+    gameInput.addEventListener('focus', () => {
+        setTimeout(() => {
+            gameInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }, 300);
+    });
+    
+    // Also handle the join code input
+    const joinCodeInput = document.getElementById('join-code');
+    if (joinCodeInput) {
+        joinCodeInput.addEventListener('focus', () => {
+            setTimeout(() => {
+                joinCodeInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }, 300);
+        });
+    }
+    
+    // Handle player name input on home screen
+    const playerNameInput = document.getElementById('player-name');
+    if (playerNameInput) {
+        playerNameInput.addEventListener('focus', () => {
+            setTimeout(() => {
+                playerNameInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }, 300);
+        });
+    }
+}
+
 console.log('🎮 Bomb Party Client Initialized');
+console.log('📱 Mobile detected:', isMobile);
 </script>
 </body>
 </html>

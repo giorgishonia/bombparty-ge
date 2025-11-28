@@ -30,6 +30,69 @@ app.use((req, res, next) => {
 // Serve static files from public folder
 app.use(express.static(path.join(__dirname, 'public')));
 
+// ============== SECURITY: INPUT SANITIZATION ==============
+function sanitizeText(text, maxLength = 50) {
+    if (typeof text !== 'string') return '';
+    return text
+        .replace(/<[^>]*>/g, '') // Remove HTML tags
+        .replace(/[<>&"'`]/g, '') // Remove dangerous chars
+        .substring(0, maxLength)
+        .trim();
+}
+
+function sanitizeName(name, maxLength = 20) {
+    if (typeof name !== 'string') return 'Guest';
+    const sanitized = name
+        .replace(/<[^>]*>/g, '') // Remove HTML tags
+        .replace(/[<>&"'`]/g, '') // Remove dangerous chars
+        .replace(/[\x00-\x1F\x7F]/g, '') // Remove control chars
+        .substring(0, maxLength)
+        .trim();
+    return sanitized || 'Guest';
+}
+
+// ============== SECURITY: RATE LIMITING ==============
+const rateLimits = new Map(); // socketId -> { event: timestamp[] }
+
+function isRateLimited(socketId, event, maxRequests = 10, windowMs = 1000) {
+    const now = Date.now();
+    const key = `${socketId}:${event}`;
+    
+    if (!rateLimits.has(key)) {
+        rateLimits.set(key, []);
+    }
+    
+    const timestamps = rateLimits.get(key);
+    
+    // Remove old timestamps outside the window
+    while (timestamps.length > 0 && timestamps[0] < now - windowMs) {
+        timestamps.shift();
+    }
+    
+    // Check if over limit
+    if (timestamps.length >= maxRequests) {
+        return true; // Rate limited
+    }
+    
+    // Add current timestamp
+    timestamps.push(now);
+    return false;
+}
+
+// Clean up rate limit data periodically
+setInterval(() => {
+    const now = Date.now();
+    for (const [key, timestamps] of rateLimits.entries()) {
+        // Remove entries older than 10 seconds
+        while (timestamps.length > 0 && timestamps[0] < now - 10000) {
+            timestamps.shift();
+        }
+        if (timestamps.length === 0) {
+            rateLimits.delete(key);
+        }
+    }
+}, 30000);
+
 // Load Georgian words
 let WORDS = [];
 let SYLLABLES = [];
@@ -167,7 +230,10 @@ class Lobby {
     constructor(hostId, hostName, lobbyName, isPublic = true) {
         this.id = uuidv4();
         this.code = generateLobbyCode();
-        this.name = lobbyName || `${hostName}'s Lobby`;
+        // Security: Sanitize lobby name using global function
+        const safeLobbyName = sanitizeName(lobbyName, 30);
+        const safeHostName = sanitizeName(hostName);
+        this.name = safeLobbyName || `${safeHostName}'s Lobby`;
         this.hostId = hostId;
         this.originalHostId = hostId;
         this.players = [];
@@ -227,9 +293,12 @@ class Lobby {
         if (this.players.length >= this.settings.maxPlayers) return false;
         if (this.players.find(p => p.id === playerId)) return true; // Already in lobby
         
+        // Security: Sanitize player name using global function
+        const safeName = sanitizeName(playerName);
+        
         const player = {
             id: playerId,
-            name: playerName,
+            name: safeName,
             avatar: getRandomAvatar(),
             color: getRandomColor(),
             lives: this.settings.startLives,
@@ -301,7 +370,13 @@ class Lobby {
     }
     
     startGame() {
-        if (this.players.length < 2) return false;
+        // Only include players who are ready AND connected
+        const readyPlayers = this.players.filter(p => p.isReady && p.isConnected);
+        
+        if (readyPlayers.length < 2) return false;
+        
+        // Remove non-ready players from the game (they stay in lobby but won't play)
+        this.players = readyPlayers;
         
         this.state = 'playing';
         this.usedWords.clear();
@@ -310,9 +385,11 @@ class Lobby {
         this.players.forEach(p => {
             p.lives = this.settings.startLives;
             p.currentInput = '';
+            p.score = 0; // Initialize score
+            p.wordsCompleted = 0; // Track words completed
         });
         
-        console.log(`🎮 Game started in lobby ${this.code} with ${this.players.length} players`);
+        console.log(`🎮 Game started in lobby ${this.code} with ${this.players.length} ready players`);
         this.nextTurn();
         return true;
     }
@@ -376,7 +453,22 @@ class Lobby {
             return { success: false, reason: 'Not your turn' };
         }
         
-        const normalizedWord = word.trim().toLowerCase();
+        // Security: Check if player is alive
+        if (currentPlayer.lives <= 0) {
+            return { success: false, reason: 'You are eliminated' };
+        }
+        
+        // Security: Check if player is connected
+        if (!currentPlayer.isConnected) {
+            return { success: false, reason: 'Player disconnected' };
+        }
+        
+        // Security: Validate word is a string
+        if (typeof word !== 'string') {
+            return { success: false, reason: 'Invalid input' };
+        }
+        
+        const normalizedWord = sanitizeText(word, 50).toLowerCase();
         
         if (normalizedWord.length < this.settings.minWordLength) {
             return { success: false, reason: 'Word too short' };
@@ -396,10 +488,25 @@ class Lobby {
         
         if (this.timer) clearInterval(this.timer);
         
-        const bonusTime = Math.min(3, Math.floor(normalizedWord.length / 4));
+        // Calculate score based on word length and speed
+        const timeUsed = (Date.now() - this.turnStartTime) / 1000; // seconds
+        const timeRemaining = Math.max(0, this.timerValue);
+        const wordLength = normalizedWord.length;
         
-        console.log(`✓ ${currentPlayer.name} submitted: ${word}`);
-        this.broadcastWordSuccess(playerId, word, bonusTime);
+        // Score formula:
+        // Base: 10 points per letter
+        // Speed bonus: up to 50 points for fast answers (based on % time remaining)
+        // Length bonus: extra 5 points per letter over 5
+        const baseScore = wordLength * 10;
+        const speedBonus = Math.round((timeRemaining / this.settings.turnTime) * 50);
+        const lengthBonus = Math.max(0, (wordLength - 5) * 5);
+        const totalScore = baseScore + speedBonus + lengthBonus;
+        
+        currentPlayer.score = (currentPlayer.score || 0) + totalScore;
+        currentPlayer.wordsCompleted = (currentPlayer.wordsCompleted || 0) + 1;
+        
+        console.log(`✓ ${currentPlayer.name} submitted: ${word} (+${totalScore} pts, total: ${currentPlayer.score})`);
+        this.broadcastWordSuccess(playerId, word, totalScore);
         
         setTimeout(() => {
             this.currentTurnIndex = (this.currentTurnIndex + 1) % this.players.length;
@@ -410,28 +517,64 @@ class Lobby {
     }
     
     updateTyping(playerId, text) {
-        const player = this.players.find(p => p.id === playerId);
-        if (player) {
-            player.currentInput = text;
-            this.lastActivity = Date.now();
-            this.broadcastTyping(playerId, text);
-        }
+        // Security: Validate game state
+        if (this.state !== 'playing') return;
+        
+        // Security: Validate it's this player's turn
+        const currentPlayer = this.players[this.currentTurnIndex];
+        if (!currentPlayer || currentPlayer.id !== playerId) return;
+        
+        // Security: Validate player is alive
+        if (currentPlayer.lives <= 0) return;
+        
+        // Security: Validate player is connected
+        if (!currentPlayer.isConnected) return;
+        
+        // Security: Sanitize text - strip HTML/scripts, limit length
+        const sanitizedText = sanitizeText(text, 50);
+        
+        currentPlayer.currentInput = sanitizedText;
+        this.lastActivity = Date.now();
+        this.broadcastTyping(playerId, sanitizedText);
     }
+    
     
     endGame() {
         if (this.timer) clearInterval(this.timer);
         
         this.state = 'finished';
-        const winner = this.getAlivePlayers()[0];
         
-        console.log(`🏆 Game ended in ${this.code}. Winner: ${winner?.name || 'Nobody'}`);
-        this.broadcastGameEnd(winner);
+        // Sort all players by score (highest first), then by lives remaining
+        const rankings = [...this.players]
+            .sort((a, b) => {
+                // First by score
+                if (b.score !== a.score) return (b.score || 0) - (a.score || 0);
+                // Then by lives remaining
+                return b.lives - a.lives;
+            })
+            .map((p, index) => ({
+                rank: index + 1,
+                id: p.id,
+                name: p.name,
+                avatar: p.avatar,
+                color: p.color,
+                score: p.score || 0,
+                wordsCompleted: p.wordsCompleted || 0,
+                lives: p.lives
+            }));
+        
+        const winner = rankings[0];
+        
+        console.log(`🏆 Game ended in ${this.code}. Winner: ${winner?.name || 'Nobody'} with ${winner?.score || 0} pts`);
+        this.broadcastGameEnd(winner, rankings);
         
         setTimeout(() => {
             this.state = 'waiting';
             this.players.forEach(p => {
                 p.isReady = false;
                 p.lives = this.settings.startLives;
+                p.score = 0;
+                p.wordsCompleted = 0;
             });
             this.broadcastGameState();
             broadcastLobbyList();
@@ -447,6 +590,8 @@ class Lobby {
                 avatar: p.avatar,
                 color: p.color,
                 lives: p.lives,
+                score: p.score || 0,
+                wordsCompleted: p.wordsCompleted || 0,
                 isConnected: p.isConnected,
                 isReady: p.isReady,
                 currentInput: p.currentInput
@@ -485,13 +630,15 @@ class Lobby {
         io.to(this.id).emit('game:word-success', { playerId, word, bonusTime });
     }
     
-    broadcastGameEnd(winner) {
+    broadcastGameEnd(winner, rankings) {
         io.to(this.id).emit('game:end', { 
             winner: winner ? {
                 id: winner.id,
                 name: winner.name,
-                avatar: winner.avatar
-            } : null
+                avatar: winner.avatar,
+                score: winner.score || 0
+            } : null,
+            rankings: rankings || []
         });
     }
 }
@@ -632,6 +779,12 @@ io.on('connection', (socket) => {
     
     // ========== LOBBY MANAGEMENT ==========
     socket.on('lobby:create', ({ playerName, lobbyName, isPublic }) => {
+        // Security: Rate limit lobby creation (max 3 per 10 seconds)
+        if (isRateLimited(socket.id, 'lobby:create', 3, 10000)) {
+            socket.emit('error', { message: 'Too many requests. Please wait.' });
+            return;
+        }
+        
         // Auto-create player if not exists (guest mode)
         let playerId = socketToPlayer.get(socket.id);
         
@@ -687,6 +840,21 @@ io.on('connection', (socket) => {
     });
     
     socket.on('lobby:join', ({ lobbyCode, playerName }) => {
+        // Security: Rate limit lobby joins (max 5 per 10 seconds)
+        if (isRateLimited(socket.id, 'lobby:join', 5, 10000)) {
+            socket.emit('error', { message: 'Too many requests. Please wait.' });
+            return;
+        }
+        
+        // Security: Validate lobbyCode
+        if (!lobbyCode || typeof lobbyCode !== 'string') {
+            socket.emit('error', { message: 'Invalid lobby code' });
+            return;
+        }
+        
+        // Security: Sanitize player name
+        const safeName = sanitizeName(playerName);
+        
         // Auto-create player if not exists (guest mode)
         let playerId = socketToPlayer.get(socket.id);
         
@@ -694,18 +862,18 @@ io.on('connection', (socket) => {
             playerId = generatePlayerId();
             players.set(playerId, {
                 id: playerId,
-                name: playerName || 'Guest',
+                name: safeName,
                 socketId: socket.id,
                 currentLobbyId: null
             });
             socketToPlayer.set(socket.id, playerId);
             playerToSocket.set(playerId, socket.id);
             socket.emit('player:authed', { playerId });
-            console.log(`👤 Auto-created player: ${playerName} (${playerId})`);
+            console.log(`👤 Auto-created player: ${safeName} (${playerId})`);
         }
         
         const player = players.get(playerId);
-        player.name = playerName || player.name || 'Guest';
+        player.name = safeName || player.name || 'Guest';
         
         console.log(`📥 Join lobby request: ${lobbyCode} from ${player.name} (${playerId})`);
         
@@ -830,19 +998,36 @@ io.on('connection', (socket) => {
         }
     });
     
-    socket.on('game:typing', ({ text }) => {
+    socket.on('game:typing', (data) => {
+        // Security: Rate limit typing events (max 20 per second)
+        if (isRateLimited(socket.id, 'typing', 20, 1000)) return;
+        
+        // Security: Validate data exists and has text property
+        if (!data || typeof data.text !== 'string') return;
+        
         const playerId = socketToPlayer.get(socket.id);
+        if (!playerId) return;
+        
         const player = players.get(playerId);
         if (!player?.currentLobbyId) return;
         
         const lobby = lobbies.get(player.currentLobbyId);
         if (!lobby) return;
         
-        lobby.updateTyping(playerId, text);
+        // Security: All validation happens inside updateTyping
+        lobby.updateTyping(playerId, data.text);
     });
     
-    socket.on('game:submit', ({ word }) => {
+    socket.on('game:submit', (data) => {
+        // Security: Rate limit submit events (max 5 per second)
+        if (isRateLimited(socket.id, 'submit', 5, 1000)) return;
+        
+        // Security: Validate data exists and has word property
+        if (!data || typeof data.word !== 'string') return;
+        
         const playerId = socketToPlayer.get(socket.id);
+        if (!playerId) return;
+        
         const player = players.get(playerId);
         if (!player?.currentLobbyId) return;
         
@@ -858,14 +1043,19 @@ io.on('connection', (socket) => {
     
     socket.on('game:ready', () => {
         const playerId = socketToPlayer.get(socket.id);
+        if (!playerId) return;
+        
         const player = players.get(playerId);
         if (!player?.currentLobbyId) return;
         
         const lobby = lobbies.get(player.currentLobbyId);
         if (!lobby) return;
         
+        // Security: Only allow ready toggle in waiting state
+        if (lobby.state !== 'waiting') return;
+        
         const lobbyPlayer = lobby.players.find(p => p.id === playerId);
-        if (lobbyPlayer) {
+        if (lobbyPlayer && lobbyPlayer.isConnected) {
             lobbyPlayer.isReady = !lobbyPlayer.isReady;
             lobby.broadcastGameState();
         }
