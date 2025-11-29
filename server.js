@@ -1034,7 +1034,7 @@ io.on('connection', (socket) => {
         const lobby = lobbies.get(player.currentLobbyId);
         if (!lobby) return;
         
-        const result = lobby.submitWord(playerId, word);
+        const result = lobby.submitWord(playerId, data.word);
         
         if (!result.success) {
             socket.emit('game:word-rejected', { reason: result.reason });
