@@ -617,12 +617,16 @@
         
         .player-lives {
             position: absolute;
-            top: -20px;
+            top: -22px;
             left: 50%;
             transform: translateX(-50%);
             display: flex;
-            gap: 2px;
-            font-size: 0.9rem;
+            gap: 3px;
+            font-size: 0.85rem;
+            z-index: 45;
+            background: rgba(13, 10, 18, 0.7);
+            padding: 2px 6px;
+            border-radius: 10px;
         }
         
         .heart {
@@ -679,22 +683,25 @@
         /* Typing Bubble */
         .typing-bubble {
             position: absolute;
-            bottom: 90px;
+            top: -65px; /* Position above the hearts */
             left: 50%;
             transform: translateX(-50%) scale(0.8);
             background: white;
             color: #1a1a1a;
-            padding: 8px 16px;
-            border-radius: 16px;
+            padding: 6px 14px;
+            border-radius: 14px;
             border-bottom-left-radius: 4px;
             font-weight: 700;
-            font-size: 1.1rem;
+            font-size: 1rem;
             white-space: nowrap;
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
             opacity: 0;
             transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
             z-index: 50;
             font-family: 'Noto Sans Georgian', sans-serif;
+            max-width: 150px;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
         
         .typing-bubble.visible {
@@ -709,7 +716,7 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            margin-top: -90px; /* Match the player circle offset */
+            margin-top: -120px; /* Match the player circle offset */
         }
         
         .bomb-container {
@@ -727,6 +734,9 @@
                 inset 0 -10px 30px rgba(0, 0, 0, 0.4),
                 inset 0 10px 30px rgba(255, 255, 255, 0.05);
             transition: all 0.3s;
+            justify-content: center;
+            flex-direction: column;
+            display: flex;
         }
         
         .bomb-container.critical {
@@ -743,7 +753,7 @@
             position: absolute;
             top: -55px;
             left: 50%;
-            transform: translateX(-50%);
+            transform: translateX(-70%) rotate(-20deg);
             width: 70px;
             height: 70px;
             z-index: 35;
@@ -772,11 +782,15 @@
         }
         
         .timer-display {
-            margin-top: 16px;
             font-size: 1.8rem;
             font-weight: 800;
             font-family: 'Space Grotesk', monospace;
             transition: color 0.3s;
+            position: relative;
+            z-index: 25; /* Above arrow */
+            background: rgba(13, 10, 18, 0);
+            padding: 8px 20px;
+            border-radius: 12px;
         }
         
         .timer-display.critical {
@@ -793,8 +807,8 @@
         .arrow-spinner {
             position: absolute;
             width: 340px;
-            height: 340px;
-            top: calc(50% - 90px); /* Match player circle offset */
+            height: 360px;
+            top: calc(50% - 70px); /* Match player circle offset */
             left: 50%;
             margin-left: -170px;
             margin-top: -170px;
@@ -1139,6 +1153,114 @@
             color: var(--accent-cyan);
         }
         
+        /* Audio Controls */
+        .audio-controls {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+            margin: 20px 0;
+        }
+        
+        .volume-control {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        
+        .volume-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .volume-icon {
+            font-size: 1.5rem;
+        }
+        
+        .volume-label {
+            flex: 1;
+            font-weight: 600;
+        }
+        
+        .volume-value {
+            font-size: 0.9rem;
+            color: var(--accent-cyan);
+            font-weight: 700;
+            min-width: 45px;
+            text-align: right;
+        }
+        
+        .volume-slider {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 100%;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+            outline: none;
+            cursor: pointer;
+        }
+        
+        .volume-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple));
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 2px 10px rgba(0, 245, 212, 0.4);
+            transition: transform 0.2s;
+        }
+        
+        .volume-slider::-webkit-slider-thumb:hover {
+            transform: scale(1.2);
+        }
+        
+        .volume-slider::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple));
+            border-radius: 50%;
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 2px 10px rgba(0, 245, 212, 0.4);
+        }
+        
+        .audio-toggles {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            padding-top: 16px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .audio-toggle {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            padding: 8px 0;
+        }
+        
+        .audio-toggle input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            accent-color: var(--accent-cyan);
+            cursor: pointer;
+        }
+        
+        .audio-toggle span {
+            font-weight: 500;
+        }
+        
+        /* Audio button in header */
+        .btn-audio {
+            font-size: 1.2rem;
+            padding: 8px 12px;
+            min-width: auto;
+        }
+        
         /* Connection Status */
         .connection-status {
             z-index: 1000;
@@ -1215,7 +1337,9 @@
             .player-avatar { width: 58px; height: 58px; font-size: 1.6rem; }
             .bomb-container { width: 140px; height: 140px; }
             .syllable-display { font-size: 2rem; }
-            .timer-display { font-size: 1.5rem; }
+            .timer-display { font-size: 1.5rem; padding: 6px 16px; }
+            .typing-bubble { top: -55px; font-size: 0.9rem; padding: 5px 12px; }
+            .player-lives { font-size: 0.8rem; top: -20px; }
             .arrow-spinner { 
                 width: 260px; 
                 height: 260px; 
@@ -1250,7 +1374,9 @@
             .player-name { font-size: 0.75rem; }
             .bomb-container { width: 120px; height: 120px; }
             .syllable-display { font-size: 1.7rem; }
-            .timer-display { font-size: 1.3rem; margin-top: 12px; }
+            .timer-display { font-size: 1.3rem; margin-top: 12px; padding: 5px 14px; }
+            .typing-bubble { top: -50px; font-size: 0.85rem; padding: 4px 10px; max-width: 120px; }
+            .player-lives { font-size: 0.75rem; top: -18px; padding: 2px 5px; }
             .bomb-wick { width: 55px; height: 55px; top: -45px; }
             .arrow-spinner { 
                 width: 220px; 
@@ -1306,6 +1432,16 @@
             .timer-display {
                 font-size: 1.1rem;
                 margin-top: 8px;
+                padding: 4px 12px;
+            }
+            .typing-bubble {
+                top: -45px;
+                font-size: 0.8rem;
+                padding: 3px 8px;
+            }
+            .player-lives {
+                font-size: 0.7rem;
+                top: -16px;
             }
             .waiting-overlay {
                 overflow-y: auto;
@@ -1347,6 +1483,9 @@
             </button>
             <button id="btn-quick-create" class="btn btn-secondary">
                 <span>⚡</span> Quick Create
+            </button>
+            <button id="btn-audio-home" class="btn btn-ghost" style="margin-top: 20px;">
+                <span>🔊</span> Audio Settings
             </button>
         </div>
     </div>
@@ -1401,6 +1540,42 @@
         </div>
     </div>
     
+    <!-- ============ AUDIO SETTINGS MODAL ============ -->
+    <div class="modal-overlay" id="audio-modal">
+        <div class="modal">
+            <h2><span>🔊</span> Audio Settings</h2>
+            <div class="audio-controls">
+                <div class="volume-control">
+                    <div class="volume-header">
+                        <span class="volume-icon" id="music-icon">🎵</span>
+                        <span class="volume-label">Music</span>
+                        <span class="volume-value" id="music-value">50%</span>
+                    </div>
+                    <input type="range" id="music-volume" class="volume-slider" min="0" max="100" value="50">
+                </div>
+                <div class="volume-control">
+                    <div class="volume-header">
+                        <span class="volume-icon" id="sfx-icon">🔉</span>
+                        <span class="volume-label">Sound Effects</span>
+                        <span class="volume-value" id="sfx-value">70%</span>
+                    </div>
+                    <input type="range" id="sfx-volume" class="volume-slider" min="0" max="100" value="70">
+                </div>
+            </div>
+            <div class="audio-toggles">
+                <label class="audio-toggle">
+                    <input type="checkbox" id="music-enabled" checked>
+                    <span>Enable Music</span>
+                </label>
+                <label class="audio-toggle">
+                    <input type="checkbox" id="sfx-enabled" checked>
+                    <span>Enable Sound Effects</span>
+                </label>
+            </div>
+            <button id="btn-close-audio" class="btn btn-primary" style="margin-top: 20px;">Done</button>
+        </div>
+    </div>
+    
     <!-- ============ GAME ROOM ============ -->
     <div id="game-screen" class="screen">
         <div class="game-header">
@@ -1409,6 +1584,7 @@
                 <div class="room-name" id="room-name">Lobby Name</div>
             </div>
             <div class="header-actions">
+                <button id="btn-audio" class="btn btn-ghost btn-audio">🔊</button>
                 <button id="btn-settings" class="btn btn-ghost">⚙️ Settings</button>
                 <button id="btn-leave" class="btn btn-ghost">🚪 Leave</button>
                 <div class="connection-status" id="connection-status">
@@ -1442,8 +1618,8 @@
                         <path id="wick-path" d="M40,80 C40,50 15,50 15,20 C15,10 25,5 40,10" />
                     </svg>
                     <div class="syllable-display" id="syllable-display">---</div>
+                    <div class="timer-display" id="timer-display">10.00</div>
                 </div>
-                <div class="timer-display" id="timer-display">10.00</div>
             </div>
             
             <!-- Waiting Overlay -->
@@ -1694,6 +1870,335 @@ function spawnWickParticles(x, y, intensity = 1) {
     }
 }
 
+// ============ AUDIO SYSTEM ============
+const AudioSystem = {
+    ctx: null,
+    musicVolume: 0.5,
+    sfxVolume: 0.7,
+    musicEnabled: true,
+    sfxEnabled: true,
+    bgMusic: null,
+    bgMusicGain: null,
+    isInitialized: false,
+    
+    init() {
+        if (this.isInitialized) return;
+        
+        try {
+            this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+            this.bgMusicGain = this.ctx.createGain();
+            this.bgMusicGain.connect(this.ctx.destination);
+            this.bgMusicGain.gain.value = this.musicVolume;
+            this.isInitialized = true;
+            
+            // Load settings from localStorage
+            this.loadSettings();
+            
+            console.log('🔊 Audio system initialized');
+        } catch (e) {
+            console.warn('Audio not supported:', e);
+        }
+    },
+    
+    loadSettings() {
+        const saved = localStorage.getItem('bombparty_audio');
+        if (saved) {
+            const settings = JSON.parse(saved);
+            this.musicVolume = settings.musicVolume ?? 0.5;
+            this.sfxVolume = settings.sfxVolume ?? 0.7;
+            this.musicEnabled = settings.musicEnabled ?? true;
+            this.sfxEnabled = settings.sfxEnabled ?? true;
+            this.updateUI();
+        }
+    },
+    
+    saveSettings() {
+        localStorage.setItem('bombparty_audio', JSON.stringify({
+            musicVolume: this.musicVolume,
+            sfxVolume: this.sfxVolume,
+            musicEnabled: this.musicEnabled,
+            sfxEnabled: this.sfxEnabled
+        }));
+    },
+    
+    updateUI() {
+        document.getElementById('music-volume').value = this.musicVolume * 100;
+        document.getElementById('sfx-volume').value = this.sfxVolume * 100;
+        document.getElementById('music-value').textContent = Math.round(this.musicVolume * 100) + '%';
+        document.getElementById('sfx-value').textContent = Math.round(this.sfxVolume * 100) + '%';
+        document.getElementById('music-enabled').checked = this.musicEnabled;
+        document.getElementById('sfx-enabled').checked = this.sfxEnabled;
+        document.getElementById('music-icon').textContent = this.musicEnabled && this.musicVolume > 0 ? '🎵' : '🔇';
+        document.getElementById('sfx-icon').textContent = this.sfxEnabled && this.sfxVolume > 0 ? '🔉' : '🔇';
+        
+        // Update audio button icon
+        const audioBtn = document.getElementById('btn-audio');
+        if (audioBtn) {
+            const anyEnabled = (this.musicEnabled && this.musicVolume > 0) || (this.sfxEnabled && this.sfxVolume > 0);
+            audioBtn.textContent = anyEnabled ? '🔊' : '🔇';
+        }
+    },
+    
+    setMusicVolume(vol) {
+        this.musicVolume = vol;
+        if (this.bgMusicGain) {
+            this.bgMusicGain.gain.value = this.musicEnabled ? vol : 0;
+        }
+        this.saveSettings();
+        this.updateUI();
+    },
+    
+    setSfxVolume(vol) {
+        this.sfxVolume = vol;
+        this.saveSettings();
+        this.updateUI();
+    },
+    
+    setMusicEnabled(enabled) {
+        this.musicEnabled = enabled;
+        if (this.bgMusicGain) {
+            this.bgMusicGain.gain.value = enabled ? this.musicVolume : 0;
+        }
+        if (enabled && !this.bgMusic) {
+            this.startBackgroundMusic();
+        }
+        this.saveSettings();
+        this.updateUI();
+    },
+    
+    setSfxEnabled(enabled) {
+        this.sfxEnabled = enabled;
+        this.saveSettings();
+        this.updateUI();
+    },
+    
+    // Generate tones using Web Audio API
+    playTone(frequency, duration, type = 'sine', volume = 1) {
+        if (!this.ctx || !this.sfxEnabled) return;
+        if (this.ctx.state === 'suspended') this.ctx.resume();
+        
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        
+        osc.type = type;
+        osc.frequency.value = frequency;
+        
+        gain.gain.value = this.sfxVolume * volume * 0.3;
+        gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + duration);
+        
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        
+        osc.start();
+        osc.stop(this.ctx.currentTime + duration);
+    },
+    
+    // Sound effects
+    playSuccess() {
+        if (!this.sfxEnabled) return;
+        // Happy ascending arpeggio
+        this.playTone(523, 0.1, 'sine', 0.8); // C5
+        setTimeout(() => this.playTone(659, 0.1, 'sine', 0.8), 50); // E5
+        setTimeout(() => this.playTone(784, 0.15, 'sine', 1), 100); // G5
+        setTimeout(() => this.playTone(1047, 0.2, 'sine', 1), 150); // C6
+    },
+    
+    playExplosion() {
+        if (!this.ctx || !this.sfxEnabled) return;
+        if (this.ctx.state === 'suspended') this.ctx.resume();
+        
+        // Create noise for explosion
+        const bufferSize = this.ctx.sampleRate * 0.5;
+        const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
+        const data = buffer.getChannelData(0);
+        
+        for (let i = 0; i < bufferSize; i++) {
+            data[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / bufferSize, 3);
+        }
+        
+        const noise = this.ctx.createBufferSource();
+        noise.buffer = buffer;
+        
+        const filter = this.ctx.createBiquadFilter();
+        filter.type = 'lowpass';
+        filter.frequency.value = 500;
+        filter.frequency.exponentialRampToValueAtTime(100, this.ctx.currentTime + 0.3);
+        
+        const gain = this.ctx.createGain();
+        gain.gain.value = this.sfxVolume * 0.6;
+        gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.5);
+        
+        noise.connect(filter);
+        filter.connect(gain);
+        gain.connect(this.ctx.destination);
+        
+        noise.start();
+        
+        // Add low rumble
+        this.playTone(60, 0.4, 'sine', 1.5);
+    },
+    
+    playTick() {
+        if (!this.sfxEnabled) return;
+        this.playTone(800, 0.05, 'square', 0.3);
+    },
+    
+    playUrgentTick() {
+        if (!this.sfxEnabled) return;
+        this.playTone(1000, 0.08, 'square', 0.5);
+        setTimeout(() => this.playTone(1200, 0.05, 'square', 0.4), 50);
+    },
+    
+    playError() {
+        if (!this.sfxEnabled) return;
+        this.playTone(200, 0.15, 'sawtooth', 0.6);
+        setTimeout(() => this.playTone(150, 0.2, 'sawtooth', 0.5), 100);
+    },
+    
+    playType() {
+        if (!this.sfxEnabled) return;
+        // Soft click sound
+        this.playTone(600 + Math.random() * 200, 0.03, 'sine', 0.2);
+    },
+    
+    playGameStart() {
+        if (!this.sfxEnabled) return;
+        // Fanfare
+        this.playTone(392, 0.15, 'sine', 0.8); // G4
+        setTimeout(() => this.playTone(523, 0.15, 'sine', 0.8), 150); // C5
+        setTimeout(() => this.playTone(659, 0.15, 'sine', 0.8), 300); // E5
+        setTimeout(() => this.playTone(784, 0.3, 'sine', 1), 450); // G5
+    },
+    
+    playGameOver() {
+        if (!this.sfxEnabled) return;
+        // Sad descending
+        this.playTone(523, 0.2, 'sine', 0.7);
+        setTimeout(() => this.playTone(466, 0.2, 'sine', 0.6), 200);
+        setTimeout(() => this.playTone(392, 0.3, 'sine', 0.5), 400);
+        setTimeout(() => this.playTone(330, 0.4, 'sine', 0.4), 600);
+    },
+    
+    playVictory() {
+        if (!this.sfxEnabled) return;
+        // Victory fanfare
+        const notes = [523, 523, 523, 523, 415, 466, 523, 466, 523];
+        const times = [0, 150, 300, 450, 600, 750, 900, 1050, 1200];
+        notes.forEach((freq, i) => {
+            setTimeout(() => this.playTone(freq, 0.12, 'sine', 0.8), times[i]);
+        });
+    },
+    
+    playReady() {
+        if (!this.sfxEnabled) return;
+        this.playTone(440, 0.1, 'sine', 0.5);
+        setTimeout(() => this.playTone(554, 0.15, 'sine', 0.6), 80);
+    },
+    
+    playJoin() {
+        if (!this.sfxEnabled) return;
+        this.playTone(330, 0.08, 'sine', 0.4);
+        setTimeout(() => this.playTone(440, 0.1, 'sine', 0.5), 60);
+    },
+    
+    playLeave() {
+        if (!this.sfxEnabled) return;
+        this.playTone(440, 0.08, 'sine', 0.4);
+        setTimeout(() => this.playTone(330, 0.1, 'sine', 0.3), 60);
+    },
+    
+    playButtonClick() {
+        if (!this.sfxEnabled) return;
+        this.playTone(500, 0.05, 'sine', 0.3);
+    },
+    
+    playTurnStart() {
+        if (!this.sfxEnabled) return;
+        this.playTone(523, 0.08, 'sine', 0.5);
+        setTimeout(() => this.playTone(659, 0.1, 'sine', 0.5), 60);
+    },
+    
+    // Background music using oscillators
+    startBackgroundMusic() {
+        if (!this.ctx || !this.musicEnabled || this.bgMusic) return;
+        if (this.ctx.state === 'suspended') this.ctx.resume();
+        
+        // Create a simple ambient pad
+        const createPad = (freq, detune = 0) => {
+            const osc = this.ctx.createOscillator();
+            osc.type = 'sine';
+            osc.frequency.value = freq;
+            osc.detune.value = detune;
+            return osc;
+        };
+        
+        this.bgMusicGain.gain.value = this.musicVolume * 0.15;
+        
+        // Chord progression: Am - F - C - G
+        const chords = [
+            [220, 261.63, 329.63], // Am
+            [174.61, 220, 261.63], // F
+            [261.63, 329.63, 392], // C
+            [196, 246.94, 293.66]  // G
+        ];
+        
+        let chordIndex = 0;
+        const oscillators = [];
+        
+        const playChord = () => {
+            // Fade out old oscillators
+            oscillators.forEach(osc => {
+                try { osc.stop(this.ctx.currentTime + 0.5); } catch(e) {}
+            });
+            oscillators.length = 0;
+            
+            if (!this.musicEnabled) return;
+            
+            const chord = chords[chordIndex];
+            chord.forEach((freq, i) => {
+                const osc = createPad(freq, (Math.random() - 0.5) * 10);
+                const gain = this.ctx.createGain();
+                gain.gain.value = 0;
+                gain.gain.linearRampToValueAtTime(0.3, this.ctx.currentTime + 0.3);
+                gain.gain.linearRampToValueAtTime(0.2, this.ctx.currentTime + 3.5);
+                gain.gain.linearRampToValueAtTime(0, this.ctx.currentTime + 4);
+                
+                osc.connect(gain);
+                gain.connect(this.bgMusicGain);
+                osc.start();
+                oscillators.push(osc);
+            });
+            
+            chordIndex = (chordIndex + 1) % chords.length;
+        };
+        
+        playChord();
+        this.bgMusic = setInterval(playChord, 4000);
+    },
+    
+    stopBackgroundMusic() {
+        if (this.bgMusic) {
+            clearInterval(this.bgMusic);
+            this.bgMusic = null;
+        }
+    }
+};
+
+// Initialize audio on first user interaction
+document.addEventListener('click', () => {
+    if (!AudioSystem.isInitialized) {
+        AudioSystem.init();
+        AudioSystem.startBackgroundMusic();
+    }
+}, { once: true });
+
+document.addEventListener('keydown', () => {
+    if (!AudioSystem.isInitialized) {
+        AudioSystem.init();
+        AudioSystem.startBackgroundMusic();
+    }
+}, { once: true });
+
 // ============ UTILITIES ============
 function showScreen(name) {
     Object.values(screens).forEach(s => s.classList.remove('active'));
@@ -1793,6 +2298,7 @@ socket.on('lobby:list', (lobbies) => {
 });
 
 socket.on('lobby:joined', (data) => {
+    AudioSystem.playJoin();
     state.currentLobby = data;
     localStorage.setItem('bombparty_current_lobby', JSON.stringify(data));
     document.getElementById('room-code').textContent = data.lobbyCode;
@@ -1800,9 +2306,28 @@ socket.on('lobby:joined', (data) => {
     showScreen('game');
 });
 
+let wasMyTurn = false;
 socket.on('game:state', (data) => {
+    const previousState = state.gameState?.state;
     state.gameState = data;
     state.isHost = data.hostId === state.playerId;
+    
+    // Check if it's now my turn (and wasn't before)
+    if (data.state === 'playing' && data.players.length > 0) {
+        const currentPlayer = data.players[data.currentTurnIndex];
+        const isMyTurn = currentPlayer && currentPlayer.id === state.playerId;
+        
+        if (isMyTurn && !wasMyTurn) {
+            AudioSystem.playTurnStart();
+        }
+        wasMyTurn = isMyTurn;
+    }
+    
+    // Game just started
+    if (previousState === 'waiting' && data.state === 'playing') {
+        AudioSystem.playGameStart();
+    }
+    
     renderGameState(data);
 });
 
@@ -2000,6 +2525,7 @@ function updateArrow(turnIndex, playerCount) {
     arrow.style.transform = `rotate(${angleDeg}deg)`;
 }
 
+let lastTickSecond = -1;
 function updateTimer(value, max) {
     const timerEl = document.getElementById('timer-display');
     const bombEl = document.getElementById('bomb-visual');
@@ -2010,6 +2536,17 @@ function updateTimer(value, max) {
     const isCritical = value < 3;
     timerEl.classList.toggle('critical', isCritical);
     bombEl.classList.toggle('critical', isCritical);
+    
+    // Play tick sounds at each second
+    const currentSecond = Math.floor(value);
+    if (currentSecond !== lastTickSecond && currentSecond >= 0 && value > 0) {
+        lastTickSecond = currentSecond;
+        if (isCritical) {
+            AudioSystem.playUrgentTick();
+        } else if (currentSecond <= 5) {
+            AudioSystem.playTick();
+        }
+    }
     
     // Update wick
     if (wickPath) {
@@ -2047,6 +2584,8 @@ function updatePlayerTyping(playerId, text) {
 }
 
 function handleExplosion(data) {
+    AudioSystem.playExplosion();
+    
     const centerX = window.innerWidth / 2;
     const centerY = window.innerHeight / 2;
     spawnExplosion(centerX, centerY);
@@ -2073,6 +2612,8 @@ function handleExplosion(data) {
 }
 
 function handleWordSuccess(data) {
+    AudioSystem.playSuccess();
+    
     const node = document.querySelector(`[data-player-id="${data.playerId}"]`);
     if (node) {
         const rect = node.getBoundingClientRect();
@@ -2087,6 +2628,8 @@ function handleWordSuccess(data) {
 }
 
 function handleWordRejected(reason) {
+    AudioSystem.playError();
+    
     const input = document.getElementById('game-input');
     input.classList.add('error');
     setTimeout(() => input.classList.remove('error'), 400);
@@ -2096,6 +2639,13 @@ function handleWordRejected(reason) {
 function handleGameEnd(winner, rankings = []) {
     const overlay = document.getElementById('game-over-overlay');
     const rankingsList = document.getElementById('rankings-list');
+    
+    // Play appropriate sound
+    if (winner && winner.id === state.playerId) {
+        AudioSystem.playVictory();
+    } else {
+        AudioSystem.playGameOver();
+    }
     
     if (winner) {
         document.getElementById('winner-avatar').textContent = winner.avatar;
@@ -2190,9 +2740,17 @@ document.getElementById('player-name').addEventListener('input', (e) => {
     localStorage.setItem('bombparty_player_name', e.target.value);
 });
 
+document.getElementById('btn-audio-home').addEventListener('click', () => {
+    AudioSystem.playButtonClick();
+    document.getElementById('audio-modal').classList.add('active');
+    AudioSystem.updateUI();
+});
+
 document.getElementById('btn-browse').addEventListener('click', () => {
+    AudioSystem.playButtonClick();
     const name = document.getElementById('player-name').value.trim();
     if (!name) {
+        AudioSystem.playError();
         showToast('Please enter your name', 'error');
         return;
     }
@@ -2203,8 +2761,10 @@ document.getElementById('btn-browse').addEventListener('click', () => {
 });
 
 document.getElementById('btn-quick-create').addEventListener('click', () => {
+    AudioSystem.playButtonClick();
     const name = document.getElementById('player-name').value.trim();
     if (!name) {
+        AudioSystem.playError();
         showToast('Please enter your name', 'error');
         return;
     }
@@ -2212,7 +2772,10 @@ document.getElementById('btn-quick-create').addEventListener('click', () => {
 });
 
 // Lobby screen
-document.getElementById('btn-back-home').addEventListener('click', () => showScreen('home'));
+document.getElementById('btn-back-home').addEventListener('click', () => {
+    AudioSystem.playButtonClick();
+    showScreen('home');
+});
 
 document.getElementById('btn-refresh').addEventListener('click', () => {
     socket.emit('lobby:refresh');
@@ -2220,14 +2783,17 @@ document.getElementById('btn-refresh').addEventListener('click', () => {
 });
 
 document.getElementById('btn-create-lobby').addEventListener('click', () => {
+    AudioSystem.playButtonClick();
     document.getElementById('create-modal').classList.add('active');
 });
 
 document.getElementById('btn-cancel-create').addEventListener('click', () => {
+    AudioSystem.playButtonClick();
     document.getElementById('create-modal').classList.remove('active');
 });
 
 document.getElementById('btn-confirm-create').addEventListener('click', () => {
+    AudioSystem.playButtonClick();
     const lobbyName = document.getElementById('lobby-name').value.trim();
     const isPublic = document.getElementById('lobby-public').checked;
     createLobby(lobbyName, isPublic);
@@ -2235,10 +2801,13 @@ document.getElementById('btn-confirm-create').addEventListener('click', () => {
 });
 
 document.getElementById('btn-join-code').addEventListener('click', () => {
+    AudioSystem.playButtonClick();
     const code = document.getElementById('join-code').value.trim().toUpperCase();
     if (code.length >= 4) {
+        AudioSystem.playJoin();
         joinLobby(code);
     } else {
+        AudioSystem.playError();
         showToast('Invalid lobby code', 'error');
     }
 });
@@ -2250,14 +2819,55 @@ document.getElementById('join-code').addEventListener('keypress', (e) => {
 });
 
 // Game screen
-document.getElementById('btn-leave').addEventListener('click', leaveLobby);
+document.getElementById('btn-leave').addEventListener('click', () => {
+    AudioSystem.playLeave();
+    leaveLobby();
+});
 
 document.getElementById('btn-ready').addEventListener('click', () => {
+    AudioSystem.playReady();
     socket.emit('game:ready');
 });
 
 document.getElementById('btn-start-game').addEventListener('click', () => {
+    AudioSystem.playGameStart();
     socket.emit('game:start');
+});
+
+// Audio settings
+document.getElementById('btn-audio').addEventListener('click', () => {
+    AudioSystem.playButtonClick();
+    document.getElementById('audio-modal').classList.add('active');
+    AudioSystem.updateUI();
+});
+
+document.getElementById('btn-close-audio').addEventListener('click', () => {
+    AudioSystem.playButtonClick();
+    document.getElementById('audio-modal').classList.remove('active');
+});
+
+// Close audio modal when clicking outside
+document.getElementById('audio-modal').addEventListener('click', (e) => {
+    if (e.target.id === 'audio-modal') {
+        AudioSystem.playButtonClick();
+        document.getElementById('audio-modal').classList.remove('active');
+    }
+});
+
+document.getElementById('music-volume').addEventListener('input', (e) => {
+    AudioSystem.setMusicVolume(e.target.value / 100);
+});
+
+document.getElementById('sfx-volume').addEventListener('input', (e) => {
+    AudioSystem.setSfxVolume(e.target.value / 100);
+});
+
+document.getElementById('music-enabled').addEventListener('change', (e) => {
+    AudioSystem.setMusicEnabled(e.target.checked);
+});
+
+document.getElementById('sfx-enabled').addEventListener('change', (e) => {
+    AudioSystem.setSfxEnabled(e.target.checked);
 });
 
 document.getElementById('btn-play-again').addEventListener('click', () => {
@@ -2273,6 +2883,7 @@ document.getElementById('btn-play-again').addEventListener('click', () => {
 const gameInput = document.getElementById('game-input');
 
 gameInput.addEventListener('input', (e) => {
+    AudioSystem.playType();
     socket.emit('game:typing', { text: e.target.value });
 });
 
