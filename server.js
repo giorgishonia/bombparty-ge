@@ -253,6 +253,7 @@ class Lobby {
         this.timerValue = 0;
         this.lastActivity = Date.now();
         this.turnStartTime = 0;
+        this.turnLocked = false; // Prevent submissions after timeout
         
         this.afkCheckInterval = null;
         this.startAfkChecker();
@@ -395,6 +396,9 @@ class Lobby {
     }
     
     nextTurn() {
+        // Unlock the turn for new submissions
+        this.turnLocked = false;
+        
         let checks = 0;
         while (this.players[this.currentTurnIndex]?.lives <= 0 && checks < this.players.length) {
             this.currentTurnIndex = (this.currentTurnIndex + 1) % this.players.length;
@@ -424,6 +428,9 @@ class Lobby {
     handleTimeout() {
         if (this.timer) clearInterval(this.timer);
         
+        // Lock the turn to prevent late submissions
+        this.turnLocked = true;
+        
         const loser = this.players[this.currentTurnIndex];
         if (!loser) return;
         
@@ -447,6 +454,11 @@ class Lobby {
     
     submitWord(playerId, word) {
         if (this.state !== 'playing') return { success: false, reason: 'Game not in progress' };
+        
+        // Prevent late submissions after timeout
+        if (this.turnLocked) {
+            return { success: false, reason: 'Too late! Time ran out' };
+        }
         
         const currentPlayer = this.players[this.currentTurnIndex];
         if (!currentPlayer || currentPlayer.id !== playerId) {
@@ -519,6 +531,9 @@ class Lobby {
     updateTyping(playerId, text) {
         // Security: Validate game state
         if (this.state !== 'playing') return;
+        
+        // Prevent typing after timeout
+        if (this.turnLocked) return;
         
         // Security: Validate it's this player's turn
         const currentPlayer = this.players[this.currentTurnIndex];
