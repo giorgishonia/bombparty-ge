@@ -487,6 +487,16 @@ class Lobby {
             return { success: false, reason: 'Word too short' };
         }
         
+        // Prevent typing just the syllable itself
+        if (normalizedWord === this.currentSyllable.toLowerCase()) {
+            return { success: false, reason: 'Word cannot be just the syllable!' };
+        }
+        
+        // Word must be longer than the syllable
+        if (normalizedWord.length <= this.currentSyllable.length) {
+            return { success: false, reason: 'Word must be longer than the syllable' };
+        }
+        
         if (this.usedWords.has(normalizedWord)) {
             return { success: false, reason: 'Word already used' };
         }
