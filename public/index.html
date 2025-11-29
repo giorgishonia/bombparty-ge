@@ -666,6 +666,30 @@
             opacity: 0.5;
         }
         
+        .streak-badge {
+            color: var(--accent-orange);
+            animation: streakPulse 0.5s ease-in-out infinite;
+        }
+        
+        @keyframes streakPulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.8; transform: scale(1.1); }
+        }
+        
+        /* On Fire effect for high streaks */
+        .player-node.on-fire .player-avatar {
+            box-shadow: 
+                0 0 20px rgba(255, 107, 53, 0.6),
+                0 0 40px rgba(255, 107, 53, 0.4),
+                0 0 60px rgba(255, 107, 53, 0.2);
+            animation: onFireGlow 0.5s ease-in-out infinite alternate;
+        }
+        
+        @keyframes onFireGlow {
+            from { box-shadow: 0 0 20px rgba(255, 107, 53, 0.6), 0 0 40px rgba(255, 107, 53, 0.3); }
+            to { box-shadow: 0 0 30px rgba(255, 215, 0, 0.7), 0 0 50px rgba(255, 107, 53, 0.4); }
+        }
+        
         .host-badge {
             position: absolute;
             bottom: -8px;
@@ -2495,8 +2519,11 @@ function renderPlayersCircle(players, currentTurnIndex, hostId) {
         if (isActive) classes.push('active');
         if (isDead) classes.push('dead');
         if (isDisconnected) classes.push('disconnected');
+        if (player.streak >= 3) classes.push('on-fire'); // Fire effect for 3+ streak
         
-        const hearts = Array(3).fill(0).map((_, i) => 
+        // Dynamic hearts based on current lives (support for bonus HP up to 5)
+        const maxHearts = Math.max(3, player.lives);
+        const hearts = Array(maxHearts).fill(0).map((_, i) => 
             `<span class="heart ${i >= player.lives ? 'lost' : ''}">♥</span>`
         ).join('');
         
@@ -2513,7 +2540,7 @@ function renderPlayersCircle(players, currentTurnIndex, hostId) {
                     ${isHost ? '<span class="host-badge">HOST</span>' : ''}
                 </div>
                 <div class="player-name">${escapeHtml(player.name)}</div>
-                <div class="player-score">${score} pts</div>
+                <div class="player-score">${score} pts${player.streak >= 2 ? ` <span class="streak-badge">🔥${player.streak}</span>` : ''}</div>
             </div>
         `;
     }).join('');
@@ -2618,10 +2645,32 @@ function handleWordSuccess(data) {
     if (node) {
         const rect = node.getBoundingClientRect();
         spawnSuccess(rect.left + rect.width / 2, rect.top);
+        
+        // Update lives display if bonus HP was gained
+        if (data.bonusHP > 0) {
+            // Extra celebration for bonus HP!
+            for (let i = 0; i < 20; i++) {
+                setTimeout(() => spawnSuccess(rect.left + rect.width / 2, rect.top), i * 50);
+            }
+        }
     }
     
-    // Show score gained instead of bonus time
-    showToast(`✓ ${data.word.toUpperCase()} +${data.bonusTime} pts`, 'success');
+    // Build toast message with all bonuses
+    let message = `✓ ${data.word.toUpperCase()} +${data.score} pts`;
+    
+    if (data.streak > 1) {
+        message += ` 🔥x${data.streak}`;
+    }
+    
+    if (data.bonusHP > 0) {
+        message += ` 💖+${data.bonusHP} HP!`;
+        showToast(message, 'success');
+        showToast('🎉 MILESTONE BONUS: +1 LIFE!', 'success');
+    } else if (data.special) {
+        showToast(`${message} ⭐${data.special}⭐`, 'success');
+    } else {
+        showToast(message, 'success');
+    }
     
     // Clear input
     document.getElementById('game-input').value = '';

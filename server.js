@@ -436,6 +436,7 @@ class Lobby {
         
         loser.lives--;
         loser.currentInput = '';
+        loser.streak = 0; // Reset streak on timeout
         
         console.log(`💥 ${loser.name} timed out! Lives: ${loser.lives}`);
         this.broadcastExplosion(loser.id);
@@ -505,20 +506,47 @@ class Lobby {
         const timeRemaining = Math.max(0, this.timerValue);
         const wordLength = normalizedWord.length;
         
+        // Track previous score for milestone check
+        const previousScore = currentPlayer.score || 0;
+        
+        // Streak tracking
+        currentPlayer.streak = (currentPlayer.streak || 0) + 1;
+        const streakBonus = Math.min(50, (currentPlayer.streak - 1) * 10); // Up to +50 for 6+ streak
+        
         // Score formula:
         // Base: 10 points per letter
         // Speed bonus: up to 50 points for fast answers (based on % time remaining)
         // Length bonus: extra 5 points per letter over 5
+        // Streak bonus: +10 per consecutive answer (max +50)
         const baseScore = wordLength * 10;
         const speedBonus = Math.round((timeRemaining / this.settings.turnTime) * 50);
         const lengthBonus = Math.max(0, (wordLength - 5) * 5);
-        const totalScore = baseScore + speedBonus + lengthBonus;
+        const totalScore = baseScore + speedBonus + lengthBonus + streakBonus;
         
-        currentPlayer.score = (currentPlayer.score || 0) + totalScore;
+        currentPlayer.score = previousScore + totalScore;
         currentPlayer.wordsCompleted = (currentPlayer.wordsCompleted || 0) + 1;
         
-        console.log(`✓ ${currentPlayer.name} submitted: ${word} (+${totalScore} pts, total: ${currentPlayer.score})`);
-        this.broadcastWordSuccess(playerId, word, totalScore);
+        // Check for bonus HP milestone (every 1000 points)
+        const previousMilestone = Math.floor(previousScore / 1000);
+        const newMilestone = Math.floor(currentPlayer.score / 1000);
+        let bonusHP = 0;
+        
+        if (newMilestone > previousMilestone) {
+            bonusHP = newMilestone - previousMilestone;
+            currentPlayer.lives = Math.min(5, currentPlayer.lives + bonusHP); // Cap at 5 lives
+            console.log(`💖 ${currentPlayer.name} earned ${bonusHP} bonus HP! (${currentPlayer.lives} lives)`);
+        }
+        
+        // Check for special achievements
+        let special = null;
+        if (wordLength >= 10) special = 'LEGENDARY'; // 10+ letter word
+        else if (wordLength >= 8) special = 'EPIC'; // 8-9 letter word
+        else if (wordLength >= 6) special = 'GREAT'; // 6-7 letter word
+        if (currentPlayer.streak >= 5) special = special ? special + ' COMBO' : 'ON FIRE';
+        if (timeRemaining > this.settings.turnTime * 0.8) special = special ? special + ' QUICK' : 'SPEED DEMON';
+        
+        console.log(`✓ ${currentPlayer.name} submitted: ${word} (+${totalScore} pts, total: ${currentPlayer.score})${bonusHP ? ` +${bonusHP}HP` : ''}${special ? ` [${special}]` : ''}`);
+        this.broadcastWordSuccess(playerId, word, totalScore, bonusHP, currentPlayer.streak, special);
         
         setTimeout(() => {
             this.currentTurnIndex = (this.currentTurnIndex + 1) % this.players.length;
@@ -607,6 +635,7 @@ class Lobby {
                 lives: p.lives,
                 score: p.score || 0,
                 wordsCompleted: p.wordsCompleted || 0,
+                streak: p.streak || 0,
                 isConnected: p.isConnected,
                 isReady: p.isReady,
                 currentInput: p.currentInput
@@ -641,8 +670,17 @@ class Lobby {
         });
     }
     
-    broadcastWordSuccess(playerId, word, bonusTime) {
-        io.to(this.id).emit('game:word-success', { playerId, word, bonusTime });
+    broadcastWordSuccess(playerId, word, score, bonusHP = 0, streak = 1, special = null) {
+        io.to(this.id).emit('game:word-success', { 
+            playerId, 
+            word, 
+            score,
+            bonusHP,
+            streak,
+            special,
+            // Include updated player data
+            playerLives: this.players.find(p => p.id === playerId)?.lives || 0
+        });
     }
     
     broadcastGameEnd(winner, rankings) {
