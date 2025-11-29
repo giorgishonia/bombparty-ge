@@ -41,14 +41,14 @@ function sanitizeText(text, maxLength = 50) {
 }
 
 function sanitizeName(name, maxLength = 20) {
-    if (typeof name !== 'string') return 'Guest';
+    if (typeof name !== 'string') return 'სტუმარი';
     const sanitized = name
         .replace(/<[^>]*>/g, '') // Remove HTML tags
         .replace(/[<>&"'`]/g, '') // Remove dangerous chars
         .replace(/[\x00-\x1F\x7F]/g, '') // Remove control chars
         .substring(0, maxLength)
         .trim();
-    return sanitized || 'Guest';
+    return sanitized || 'სტუმარი';
 }
 
 // ============== SECURITY: RATE LIMITING ==============
@@ -454,55 +454,55 @@ class Lobby {
     }
     
     submitWord(playerId, word) {
-        if (this.state !== 'playing') return { success: false, reason: 'Game not in progress' };
+        if (this.state !== 'playing') return { success: false, reason: 'თამაში არ მიმდინარეობს' };
         
         // Prevent late submissions after timeout
         if (this.turnLocked) {
-            return { success: false, reason: 'Too late! Time ran out' };
+            return { success: false, reason: 'დაგვიანდა! დრო ამოიწურა' };
         }
         
         const currentPlayer = this.players[this.currentTurnIndex];
         if (!currentPlayer || currentPlayer.id !== playerId) {
-            return { success: false, reason: 'Not your turn' };
+            return { success: false, reason: 'შენი სვლა არ არის' };
         }
         
         // Security: Check if player is alive
         if (currentPlayer.lives <= 0) {
-            return { success: false, reason: 'You are eliminated' };
+            return { success: false, reason: 'შენ გავარდი' };
         }
         
         // Security: Check if player is connected
         if (!currentPlayer.isConnected) {
-            return { success: false, reason: 'Player disconnected' };
+            return { success: false, reason: 'მოთამაშე გავიდა' };
         }
         
         // Security: Validate word is a string
         if (typeof word !== 'string') {
-            return { success: false, reason: 'Invalid input' };
+            return { success: false, reason: 'არასწორი ტექსტი' };
         }
         
         const normalizedWord = sanitizeText(word, 50).toLowerCase();
         
         if (normalizedWord.length < this.settings.minWordLength) {
-            return { success: false, reason: 'Word too short' };
+            return { success: false, reason: 'სიტყვა ძალიან მოკლეა' };
         }
         
         // Prevent typing just the syllable itself
         if (normalizedWord === this.currentSyllable.toLowerCase()) {
-            return { success: false, reason: 'Word cannot be just the syllable!' };
+            return { success: false, reason: 'სიტყვა არ შეიძლება იყოს მხოლოდ მარცვალი!' };
         }
         
         // Word must be longer than the syllable
         if (normalizedWord.length <= this.currentSyllable.length) {
-            return { success: false, reason: 'Word must be longer than the syllable' };
+            return { success: false, reason: 'სიტყვა უნდა იყოს მარცვალზე გრძელი' };
         }
         
         if (this.usedWords.has(normalizedWord)) {
-            return { success: false, reason: 'Word already used' };
+            return { success: false, reason: 'სიტყვა უკვე გამოყენებულია' };
         }
         
         if (!validateWord(normalizedWord, this.currentSyllable)) {
-            return { success: false, reason: 'Invalid word or doesn\'t contain syllable' };
+            return { success: false, reason: 'არასწორი სიტყვა ან არ შეიცავს მარცვალს' };
         }
         
         this.usedWords.add(normalizedWord);
@@ -844,7 +844,7 @@ io.on('connection', (socket) => {
     socket.on('lobby:create', ({ playerName, lobbyName, isPublic }) => {
         // Security: Rate limit lobby creation (max 3 per 10 seconds)
         if (isRateLimited(socket.id, 'lobby:create', 3, 10000)) {
-            socket.emit('error', { message: 'Too many requests. Please wait.' });
+            socket.emit('error', { message: 'ძალიან ბევრი მოთხოვნაა. გთხოვთ დაიცადოთ.' });
             return;
         }
         
@@ -905,13 +905,13 @@ io.on('connection', (socket) => {
     socket.on('lobby:join', ({ lobbyCode, playerName }) => {
         // Security: Rate limit lobby joins (max 5 per 10 seconds)
         if (isRateLimited(socket.id, 'lobby:join', 5, 10000)) {
-            socket.emit('error', { message: 'Too many requests. Please wait.' });
+            socket.emit('error', { message: 'ძალიან ბევრი მოთხოვნაა. გთხოვთ დაიცადოთ.' });
             return;
         }
         
         // Security: Validate lobbyCode
         if (!lobbyCode || typeof lobbyCode !== 'string') {
-            socket.emit('error', { message: 'Invalid lobby code' });
+            socket.emit('error', { message: 'ლობის კოდი არასწორია' });
             return;
         }
         
@@ -944,7 +944,7 @@ io.on('connection', (socket) => {
         
         if (!lobby) {
             console.log(`❌ Lobby not found: ${lobbyCode}`);
-            socket.emit('error', { message: 'Lobby not found' });
+            socket.emit('error', { message: 'ლობი არ მოიძებნა' });
             return;
         }
         
@@ -978,7 +978,7 @@ io.on('connection', (socket) => {
             }
             
             if (!existingPlayer) {
-                socket.emit('error', { message: 'Game in progress - cannot join' });
+                socket.emit('error', { message: 'თამაში მიმდინარეობს - შესვლა შეუძლებელია' });
                 return;
             }
             
@@ -991,7 +991,7 @@ io.on('connection', (socket) => {
                 existingPlayer.isConnected = true;
             } else {
                 if (!lobby.addPlayer(playerId, player.name)) {
-                    socket.emit('error', { message: 'Cannot join lobby (full?)' });
+                    socket.emit('error', { message: 'ვერ შევდივარ (სავსეა?)' });
                     return;
                 }
             }
@@ -1047,12 +1047,12 @@ io.on('connection', (socket) => {
         
         const lobby = lobbies.get(player.currentLobbyId);
         if (!lobby || lobby.hostId !== playerId) {
-            socket.emit('error', { message: 'Only host can start' });
+            socket.emit('error', { message: 'დაწყება მხოლოდ ჰოსტს შეუძლია' });
             return;
         }
         
         if (lobby.players.length < 2) {
-            socket.emit('error', { message: 'Need at least 2 players' });
+            socket.emit('error', { message: 'საჭიროა მინიმუმ 2 მოთამაშე' });
             return;
         }
         

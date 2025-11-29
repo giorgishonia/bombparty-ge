@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>💣 Bomb Party - Georgian Edition</title>
+    <title>💣 Bomb Party - ქართული გამოცემა</title>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Georgian:wght@400;600;800;900&family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
     <style>
@@ -1499,17 +1499,17 @@
         
         <div class="home-form">
             <div class="form-group">
-                <label class="form-label">Your Name</label>
-                <input type="text" id="player-name" class="form-input" placeholder="Enter your name..." maxlength="20">
+                <label class="form-label">შენი სახელი</label>
+                <input type="text" id="player-name" class="form-input" placeholder="ჩაწერე სახელი..." maxlength="20">
             </div>
             <button id="btn-browse" class="btn btn-primary">
-                <span>🎮</span> Browse Lobbies
+                <span>🎮</span> ლობის ძებნა
             </button>
             <button id="btn-quick-create" class="btn btn-secondary">
-                <span>⚡</span> Quick Create
+                <span>⚡</span> სწრაფი შექმნა
             </button>
             <button id="btn-audio-home" class="btn btn-ghost" style="margin-top: 20px;">
-                <span>🔊</span> Audio Settings
+                <span>🔊</span> ხმის პარამეტრები
             </button>
         </div>
     </div>
@@ -1517,16 +1517,16 @@
     <!-- ============ LOBBY BROWSER ============ -->
     <div id="lobby-screen" class="screen">
         <div class="screen-header">
-            <h1 class="screen-title">🏠 Game Lobbies</h1>
+            <h1 class="screen-title">🏠 თამაშის ლობები</h1>
             <div>
                 <button id="btn-create-lobby" class="btn btn-ghost">
-                    <span>➕</span> Create Lobby
+                    <span>➕</span> ლობის შექმნა
                 </button>
                 <button id="btn-refresh" class="btn btn-ghost">
-                    <span>🔄</span> Refresh
+                    <span>🔄</span> განახლება
                 </button>
                 <button id="btn-back-home" class="btn btn-ghost">
-                    <span>←</span> Back
+                    <span>←</span> უკან
                 </button>
             </div>
         </div>
@@ -1534,45 +1534,45 @@
         <div class="lobby-list" id="lobby-list">
             <div class="empty-lobbies">
                 <span>🏜️</span>
-                <p>No public lobbies available</p>
-                <p>Create one or join with a code!</p>
+                <p>საჯარო ლობები არ მოიძებნა</p>
+                <p>შექმენი ან შემოუერთდი კოდით!</p>
             </div>
         </div>
         
         <div class="join-section">
-            <input type="text" id="join-code" class="form-input" placeholder="LOBBY CODE" maxlength="6">
-            <button id="btn-join-code" class="btn btn-primary">Join</button>
+            <input type="text" id="join-code" class="form-input" placeholder="ლობის კოდი" maxlength="6">
+            <button id="btn-join-code" class="btn btn-primary">შესვლა</button>
         </div>
     </div>
     
     <!-- ============ CREATE LOBBY MODAL ============ -->
     <div class="modal-overlay" id="create-modal">
         <div class="modal">
-            <h2><span>🎲</span> Create Lobby</h2>
+            <h2><span>🎲</span> ლობის შექმნა</h2>
             <div class="form-group">
-                <label class="form-label">Lobby Name</label>
-                <input type="text" id="lobby-name" class="form-input" placeholder="My Awesome Lobby" maxlength="30">
+                <label class="form-label">ლობის სახელი</label>
+                <input type="text" id="lobby-name" class="form-input" placeholder="ჩემი ლობი" maxlength="30">
             </div>
             <div class="form-group">
                 <label class="checkbox-group">
                     <input type="checkbox" id="lobby-public" checked>
-                    <span>Public Lobby (visible in browser)</span>
+                    <span>საჯარო ლობი (ჩანს სიაში)</span>
                 </label>
             </div>
-            <button id="btn-confirm-create" class="btn btn-primary">Create Lobby</button>
-            <button id="btn-cancel-create" class="btn btn-ghost" style="margin-top: 12px; width: 100%;">Cancel</button>
+            <button id="btn-confirm-create" class="btn btn-primary">ლობის შექმნა</button>
+            <button id="btn-cancel-create" class="btn btn-ghost" style="margin-top: 12px; width: 100%;">გაუქმება</button>
         </div>
     </div>
     
     <!-- ============ AUDIO SETTINGS MODAL ============ -->
     <div class="modal-overlay" id="audio-modal">
         <div class="modal">
-            <h2><span>🔊</span> Audio Settings</h2>
+            <h2><span>🔊</span> ხმის პარამეტრები</h2>
             <div class="audio-controls">
                 <div class="volume-control">
                     <div class="volume-header">
                         <span class="volume-icon" id="music-icon">🎵</span>
-                        <span class="volume-label">Music</span>
+                        <span class="volume-label">მუსიკა</span>
                         <span class="volume-value" id="music-value">50%</span>
                     </div>
                     <input type="range" id="music-volume" class="volume-slider" min="0" max="100" value="50">
@@ -1580,7 +1580,7 @@
                 <div class="volume-control">
                     <div class="volume-header">
                         <span class="volume-icon" id="sfx-icon">🔉</span>
-                        <span class="volume-label">Sound Effects</span>
+                        <span class="volume-label">ხმოვანი ეფექტები</span>
                         <span class="volume-value" id="sfx-value">70%</span>
                     </div>
                     <input type="range" id="sfx-volume" class="volume-slider" min="0" max="100" value="70">
@@ -1589,14 +1589,14 @@
             <div class="audio-toggles">
                 <label class="audio-toggle">
                     <input type="checkbox" id="music-enabled" checked>
-                    <span>Enable Music</span>
+                    <span>მუსიკის ჩართვა</span>
                 </label>
                 <label class="audio-toggle">
                     <input type="checkbox" id="sfx-enabled" checked>
-                    <span>Enable Sound Effects</span>
+                    <span>ხმების ჩართვა</span>
                 </label>
             </div>
-            <button id="btn-close-audio" class="btn btn-primary" style="margin-top: 20px;">Done</button>
+            <button id="btn-close-audio" class="btn btn-primary" style="margin-top: 20px;">მზადაა</button>
         </div>
     </div>
     
@@ -1609,11 +1609,11 @@
             </div>
             <div class="header-actions">
                 <button id="btn-audio" class="btn btn-ghost btn-audio">🔊</button>
-                <button id="btn-settings" class="btn btn-ghost">⚙️ Settings</button>
-                <button id="btn-leave" class="btn btn-ghost">🚪 Leave</button>
+                <button id="btn-settings" class="btn btn-ghost">⚙️ პარამეტრები</button>
+                <button id="btn-leave" class="btn btn-ghost">🚪 გასვლა</button>
                 <div class="connection-status" id="connection-status">
                     <div class="connection-dot"></div>
-                    <span>Connected</span>
+                    <span>დაკავშირებულია</span>
                 </div>
             </div>
         </div>
@@ -1648,48 +1648,48 @@
             
             <!-- Waiting Overlay -->
             <div class="waiting-overlay" id="waiting-overlay">
-                <h2 class="waiting-title">Waiting for Players...</h2>
-                <p class="waiting-subtitle" id="player-count">0/8 players</p>
+                <h2 class="waiting-title">მოთამაშეების მოლოდინი...</h2>
+                <p class="waiting-subtitle" id="player-count">0/8 მოთამაშე</p>
                 
                 <div class="player-list-waiting" id="player-list-waiting"></div>
                 
                 <div class="host-controls" id="host-controls" style="display: none;">
                     <div class="settings-panel">
-                        <h3>⚙️ Game Settings</h3>
+                        <h3>⚙️ თამაშის პარამეტრები</h3>
                         <div class="setting-row">
-                            <span class="setting-label">Starting Lives</span>
+                            <span class="setting-label">საწყისი სიცოცხლეები</span>
                             <input type="number" id="set-lives" class="setting-input" value="3" min="1" max="5">
                         </div>
                         <div class="setting-row">
-                            <span class="setting-label">Turn Time (sec)</span>
+                            <span class="setting-label">სვლის დრო (წამი)</span>
                             <input type="number" id="set-time" class="setting-input" value="10" min="5" max="30">
                         </div>
                         <div class="setting-row">
-                            <span class="setting-label">Max Players</span>
+                            <span class="setting-label">მაქს. მოთამაშეები</span>
                             <input type="number" id="set-players" class="setting-input" value="8" min="2" max="12">
                         </div>
                     </div>
-                    <button id="btn-start-game" class="btn btn-primary">🚀 Start Game</button>
+                    <button id="btn-start-game" class="btn btn-primary">🚀 დაწყება</button>
                 </div>
                 
-                <button id="btn-ready" class="btn btn-secondary" style="max-width: 200px;">✋ Ready Up</button>
+                <button id="btn-ready" class="btn btn-secondary" style="max-width: 200px;">✋ მზად ვარ</button>
             </div>
             
             <!-- Game Over Overlay -->
             <div class="game-over-overlay" id="game-over-overlay">
                 <div class="winner-display">
                     <div class="winner-avatar" id="winner-avatar">🏆</div>
-                    <h2 class="winner-title">WINNER!</h2>
+                    <h2 class="winner-title">გამარჯვებული!</h2>
                     <p class="winner-name" id="winner-name">Player Name</p>
                     <p class="winner-score" id="winner-score">0 pts</p>
                 </div>
                 <div class="rankings-list" id="rankings-list"></div>
-                <button class="btn btn-primary" id="btn-play-again">🔄 Play Again</button>
+                <button class="btn btn-primary" id="btn-play-again">🔄 თავიდან თამაში</button>
             </div>
             
             <!-- Game Input -->
             <div class="game-input-wrapper">
-                <input type="text" id="game-input" class="game-input" placeholder="Type a word..." disabled autocomplete="off">
+                <input type="text" id="game-input" class="game-input" placeholder="ჩაწერე სიტყვა..." disabled autocomplete="off">
             </div>
         </div>
     </div>
@@ -2242,10 +2242,10 @@ function updateConnectionStatus(connected) {
     const el = document.getElementById('connection-status');
     if (connected) {
         el.classList.remove('disconnected');
-        el.querySelector('span').textContent = 'Connected';
+        el.querySelector('span').textContent = 'დაკავშირებულია';
     } else {
         el.classList.add('disconnected');
-        el.querySelector('span').textContent = 'Reconnecting...';
+        el.querySelector('span').textContent = 'კავშირის აღდგენა...';
     }
 }
 
@@ -2297,7 +2297,7 @@ socket.on('player:restored', (data) => {
         document.getElementById('room-code').textContent = data.lobbyCode;
         document.getElementById('room-name').textContent = data.lobbyName;
         showScreen('game');
-        showToast('Reconnected to game!', 'success');
+        showToast('თამაშთან კავშირი აღდგა!', 'success');
     }
 });
 
@@ -2310,7 +2310,7 @@ socket.on('player:restore-failed', (data) => {
     if (data.newPlayerId) {
         localStorage.setItem('bombparty_player_id', data.newPlayerId);
     }
-    showToast('Session expired - please rejoin', 'error');
+    showToast('სესია ვადაგასულია - თავიდან შედით', 'error');
 });
 
 socket.on('error', (data) => {
@@ -2387,8 +2387,8 @@ function renderLobbyList(lobbies) {
         container.innerHTML = `
             <div class="empty-lobbies">
                 <span>🏜️</span>
-                <p>No public lobbies available</p>
-                <p>Create one or join with a code!</p>
+                <p>საჯარო ლობები არ მოიძებნა</p>
+                <p>შექმენი ან შემოუერთდი კოდით!</p>
             </div>
         `;
         return;
@@ -2400,7 +2400,7 @@ function renderLobbyList(lobbies) {
                 <div class="lobby-icon">🎮</div>
                 <div class="lobby-details">
                     <h3>${escapeHtml(lobby.name)}</h3>
-                    <p>Hosted by ${escapeHtml(lobby.hostName)}</p>
+                    <p>ჰოსტი: ${escapeHtml(lobby.hostName)}</p>
                 </div>
             </div>
             <div class="lobby-meta">
@@ -2437,7 +2437,7 @@ function renderGameState(data) {
         input.disabled = true;
         
         renderWaitingPlayers(data.players);
-        document.getElementById('player-count').textContent = `${data.players.length}/${data.settings.maxPlayers} players`;
+        document.getElementById('player-count').textContent = `${data.players.length}/${data.settings.maxPlayers} მოთამაშე`;
         
         // Show host controls
         const hostControls = document.getElementById('host-controls');
@@ -2459,9 +2459,9 @@ function renderGameState(data) {
         input.disabled = !isMyTurn;
         if (isMyTurn) {
             input.focus();
-            input.placeholder = `Type a word with "${data.currentSyllable}"...`;
+            input.placeholder = `ჩაწერე სიტყვა მარცვლით "${data.currentSyllable}"...`;
         } else {
-            input.placeholder = `${currentPlayer?.name || 'Someone'} is playing...`;
+            input.placeholder = `${currentPlayer?.name || 'ვიღაც'} თამაშობს...`;
         }
     }
     
@@ -2537,7 +2537,7 @@ function renderPlayersCircle(players, currentTurnIndex, hostId) {
                         <span class="death-skull">💀</span>
                         <span class="disconnect-icon">📡</span>
                     </div>
-                    ${isHost ? '<span class="host-badge">HOST</span>' : ''}
+                    ${isHost ? '<span class="host-badge">ჰოსტი</span>' : ''}
                 </div>
                 <div class="player-name">${escapeHtml(player.name)}</div>
                 <div class="player-score">${score} pts${player.streak >= 2 ? ` <span class="streak-badge">🔥${player.streak}</span>` : ''}</div>
@@ -2656,16 +2656,16 @@ function handleWordSuccess(data) {
     }
     
     // Build toast message with all bonuses
-    let message = `✓ ${data.word.toUpperCase()} +${data.score} pts`;
+    let message = `✓ ${data.word.toUpperCase()} +${data.score} ქულა`;
     
     if (data.streak > 1) {
         message += ` 🔥x${data.streak}`;
     }
     
     if (data.bonusHP > 0) {
-        message += ` 💖+${data.bonusHP} HP!`;
+        message += ` 💖+${data.bonusHP} სიცოცხლე!`;
         showToast(message, 'success');
-        showToast('🎉 MILESTONE BONUS: +1 LIFE!', 'success');
+        showToast('🎉 ბონუსი: +1 სიცოცხლე!', 'success');
     } else if (data.special) {
         showToast(`${message} ⭐${data.special}⭐`, 'success');
     } else {
@@ -2698,11 +2698,11 @@ function handleGameEnd(winner, rankings = []) {
     
     if (winner) {
         document.getElementById('winner-avatar').textContent = winner.avatar;
-        document.getElementById('winner-name').textContent = winner.name + ' Wins!';
-        document.getElementById('winner-score').textContent = `${winner.score || 0} pts`;
+        document.getElementById('winner-name').textContent = winner.name + ' იმარჯვებს!';
+        document.getElementById('winner-score').textContent = `${winner.score || 0} ქულა`;
     } else {
         document.getElementById('winner-avatar').textContent = '🤷';
-        document.getElementById('winner-name').textContent = 'No Winner!';
+        document.getElementById('winner-name').textContent = 'გამარჯვებული არ არის!';
         document.getElementById('winner-score').textContent = '';
     }
     
@@ -2719,7 +2719,7 @@ function handleGameEnd(winner, rankings = []) {
                     <span class="ranking-avatar">${player.avatar}</span>
                     <div class="ranking-info">
                         <div class="ranking-name">${escapeHtml(player.name)}</div>
-                        <div class="ranking-stats">${player.wordsCompleted || 0} words • ${player.lives} ❤️ left</div>
+                        <div class="ranking-stats">${player.wordsCompleted || 0} სიტყვა • ${player.lives} ❤️ დარჩა</div>
                     </div>
                     <span class="ranking-score">${player.score || 0}</span>
                 </div>
@@ -2800,7 +2800,7 @@ document.getElementById('btn-browse').addEventListener('click', () => {
     const name = document.getElementById('player-name').value.trim();
     if (!name) {
         AudioSystem.playError();
-        showToast('Please enter your name', 'error');
+        showToast('გთხოვთ ჩაწეროთ სახელი', 'error');
         return;
     }
     state.playerName = name;
@@ -2814,7 +2814,7 @@ document.getElementById('btn-quick-create').addEventListener('click', () => {
     const name = document.getElementById('player-name').value.trim();
     if (!name) {
         AudioSystem.playError();
-        showToast('Please enter your name', 'error');
+        showToast('გთხოვთ ჩაწეროთ სახელი', 'error');
         return;
     }
     createLobby(null, true);
@@ -2857,7 +2857,7 @@ document.getElementById('btn-join-code').addEventListener('click', () => {
         joinLobby(code);
     } else {
         AudioSystem.playError();
-        showToast('Invalid lobby code', 'error');
+        showToast('ლობის კოდი არასწორია', 'error');
     }
 });
 
