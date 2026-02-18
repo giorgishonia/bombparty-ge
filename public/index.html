@@ -2955,18 +2955,10 @@
             <h2><span>🏆</span> რეიტინგი და ლიდერბორდი</h2>
             <div class="ranked-shell">
                 <div class="ranked-toolbar">
-                    <div class="ranked-tabs">
+                    <div class="ranked-tabs" id="ranked-tabs">
                         <button id="btn-ranked-tab-leaderboard" class="btn btn-secondary tab-btn active">ლიდერბორდი</button>
                         <button id="btn-ranked-tab-profile" class="btn btn-ghost tab-btn">პროფილი</button>
                     </div>
-                    <button id="btn-ranked-refresh" class="btn btn-ghost ranked-refresh-btn" type="button" aria-label="განახლება" title="განახლება">
-                        <svg class="lucide lucide-refresh-cw" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                            <path d="M21 2v6h-6"></path>
-                            <path d="M3 12a9 9 0 0 1 15-6.7L21 8"></path>
-                            <path d="M3 22v-6h6"></path>
-                            <path d="M21 12a9 9 0 0 1-15 6.7L3 16"></path>
-                        </svg>
-                    </button>
                 </div>
 
                 <div class="ranked-metrics" id="ranked-metrics" style="margin-bottom: 12px;">
@@ -4136,10 +4128,10 @@
             const maxDelta = Number(state.ranked.info?.maxDelta || 55);
 
             el.textContent =
-                `MMR აჩვენებს შენს საკონკურენტო დონეს. იწყება ${base}-დან. ` +
-                `თითოეულ ranked თამაშში ცვლილება ითვლება ასე: ΔMMR = K × (Actual - Expected), სადაც K=${kFactor}. ` +
-                `Actual დამოკიდებულია შენს ადგილზე მატჩში, Expected კი მოწინააღმდეგეების საშუალო MMR-ზე. ` +
-                `ცვლილება იზღუდება მაქსიმუმ ${maxDelta} ქულამდე თითო თამაშზე (±${maxDelta}).`;
+                `MMR ასახავს შენს კონკურენტულ დონეს და იწყება ${base}-დან. ` +
+                `თითო ranked თამაშში ცვლილება ითვლება ფორმულით: ΔMMR = K × (Actual - Expected), სადაც K=${kFactor}. ` +
+                `Actual განისაზღვრება შენი შედეგით, Expected კი მოწინააღმდეგეების საშუალო MMR-ით. ` +
+                `ერთ თამაშში ცვლილების ზღვარი არის ±${maxDelta} ქულა.`;
         }
 
         async function loadRankedInfo() {
@@ -4364,7 +4356,8 @@
             state.ranked.activeTab = tab;
             document.getElementById('ranked-leaderboard-view').style.display = tab === 'leaderboard' ? 'block' : 'none';
             document.getElementById('ranked-profile-view').style.display = tab === 'profile' ? 'block' : 'none';
-            document.getElementById('ranked-metrics').style.display = tab === 'leaderboard' ? 'flex' : 'none';
+            document.getElementById('ranked-tabs').style.display = 'none';
+            document.getElementById('ranked-metrics').style.display = 'none';
             document.getElementById('btn-ranked-tab-leaderboard').className = `btn ${tab === 'leaderboard' ? 'btn-secondary tab-btn active' : 'btn-ghost tab-btn'}`;
             document.getElementById('btn-ranked-tab-profile').className = `btn ${tab === 'profile' ? 'btn-secondary tab-btn active' : 'btn-ghost tab-btn'}`;
         }
@@ -4764,7 +4757,6 @@
                 }
             <span class="name-meta">
                 <span class="name">${escapeHtml(p.name)}</span>
-                ${p.provider === 'discord' && p.username ? `<span class="username">@${escapeHtml(p.username)}</span>` : ''}
             </span>
             <span class="ready-dot"></span>
         </div>
@@ -5347,11 +5339,14 @@
             document.getElementById('host-music-modal').classList.remove('active');
         });
 
-        document.getElementById('btn-ranked-refresh').addEventListener('click', async () => {
-            AudioSystem.playButtonClick();
-            await loadLeaderboard(state.ranked.metric || 'mmr');
-            await loadMyProfile();
-        });
+        const rankedRefreshBtn = document.getElementById('btn-ranked-refresh');
+        if (rankedRefreshBtn) {
+            rankedRefreshBtn.addEventListener('click', async () => {
+                AudioSystem.playButtonClick();
+                await loadLeaderboard(state.ranked.metric || 'mmr');
+                await loadMyProfile();
+            });
+        }
 
         document.getElementById('btn-ranked-tab-leaderboard').addEventListener('click', () => setRankedTab('leaderboard'));
         document.getElementById('btn-ranked-tab-profile').addEventListener('click', () => setRankedTab('profile'));
