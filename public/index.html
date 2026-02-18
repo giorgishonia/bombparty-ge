@@ -10,6 +10,7 @@
         href="https://fonts.googleapis.com/css2?family=Noto+Sans+Georgian:wght@400;600;800;900&family=Space+Grotesk:wght@400;600;700&display=swap"
         rel="stylesheet">
     <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         :root {
             --bg-gradient-start: #0f0a1e;
@@ -192,6 +193,10 @@
             }
         }
 
+        #btn-play-again{
+            width: min-content;
+        }
+
         .logo-bomb {
             font-size: 100px;
             filter: drop-shadow(0 0 40px rgba(255, 107, 53, 0.5));
@@ -211,7 +216,7 @@
         .logo-subtitle {
             font-size: 1.2rem;
             color: var(--text-secondary);
-            font-family: 'Noto Sans Georgian', sans-serif;
+            font-family: 'Space Grotesk', 'Noto Sans Georgian', sans-serif;
             margin-top: 8px;
         }
 
@@ -252,6 +257,477 @@
             100% {
                 left: 100%;
             }
+        }
+
+        .ranked-preview {
+            margin: 6px 0 18px;
+            padding: 14px 16px;
+            border-radius: 14px;
+            background: rgba(0, 0, 0, 0.28);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            display: grid;
+            gap: 6px;
+        }
+
+        .ranked-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .ranked-label {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+        }
+
+        .ranked-value {
+            font-weight: 700;
+            color: #fff;
+        }
+
+        .ranked-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 6px 12px;
+            border-radius: 999px;
+            font-size: 0.76rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            border: 1px solid rgba(255, 255, 255, 0.24);
+            width: fit-content;
+        }
+
+        .ranked-badge.bronze {
+            background: rgba(205, 127, 50, 0.2);
+            color: #f9dbc3;
+        }
+
+        .ranked-badge.silver {
+            background: rgba(192, 192, 192, 0.2);
+            color: #f2f2f2;
+        }
+
+        .ranked-badge.gold {
+            background: rgba(247, 179, 43, 0.2);
+            color: #ffeec4;
+        }
+
+        .ranked-badge.platinum {
+            background: rgba(0, 245, 212, 0.2);
+            color: #cffff7;
+        }
+
+        .ranked-badge.diamond {
+            background: rgba(124, 146, 255, 0.25);
+            color: #e3e9ff;
+        }
+
+        .home-rank-actions {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .home-rank-actions .btn {
+            width: 100%;
+            padding: 12px 10px;
+            letter-spacing: 0.06em;
+            font-size: 0.78rem;
+        }
+
+        #btn-audio-home {
+            margin-top: 20px;
+            width: 100%;
+            border-radius: 14px;
+            border: 1px solid rgba(210, 218, 255, 0.24);
+            background: linear-gradient(140deg, rgba(35, 28, 65, 0.9), rgba(23, 18, 46, 0.9));
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+        }
+
+        .auth-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 14px;
+        }
+
+        .auth-option {
+            width: 100%;
+            padding: 11px 14px;
+            font-size: 0.78rem;
+            letter-spacing: 0.06em;
+            border-radius: 14px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: linear-gradient(160deg, rgba(20, 14, 36, 0.94), rgba(10, 8, 26, 0.94));
+            color: #fff;
+            cursor: pointer;
+            transition: all 0.24s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            font-weight: 700;
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+        }
+
+        .auth-option:hover {
+            transform: scale(1.08);
+        }
+
+        .auth-option.active {
+            border-color: rgba(255, 145, 77, 0.72);
+            box-shadow: 0 0 0 1px rgba(255, 145, 77, 0.42), 0 14px 25px rgba(255, 145, 77, 0.22);
+            background: linear-gradient(160deg, rgba(255, 145, 77, 0.28), rgba(255, 107, 53, 0.12));
+        }
+
+        .auth-option.discord.active {
+            border-color: rgba(88, 101, 242, 0.82);
+            box-shadow: 0 0 0 1px rgba(88, 101, 242, 0.45), 0 14px 25px rgba(88, 101, 242, 0.22);
+            background: linear-gradient(160deg, rgba(88, 101, 242, 0.36), rgba(88, 101, 242, 0.12));
+        }
+
+        .auth-option-icon {
+            width: 19px;
+            height: 19px;
+            border-radius: 50%;
+            object-fit: contain;
+            flex: 0 0 19px;
+        }
+
+        .auth-option.guest .auth-option-icon {
+            filter: invert(1) brightness(1.7);
+        }
+
+        .auth-option-label {
+            line-height: 1;
+        }
+
+        .auth-user-card {
+            display: none;
+            align-items: center;
+            gap: 12px;
+            background: rgba(88, 101, 242, 0.15);
+            border: 1px solid rgba(88, 101, 242, 0.4);
+            border-radius: 12px;
+            padding: 10px 12px;
+            margin-bottom: 12px;
+        }
+
+        .auth-user-card #auth-user-avatar {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid rgba(255, 255, 255, 0.25);
+            background: rgba(0, 0, 0, 0.4);
+        }
+
+        .auth-user-meta {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            min-width: 0;
+        }
+
+        .auth-user-name {
+            font-weight: 700;
+            font-size: 0.9rem;
+            color: #edf1ff;
+            line-height: 1.1;
+        }
+
+        .auth-user-handle {
+            display: none;
+            font-size: 0.76rem;
+            color: #cfd8ff;
+            opacity: 0.95;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .auth-logout-btn {
+            margin-left: auto;
+            width: 38px;
+            height: 38px;
+            padding: 0;
+            border-radius: 10px;
+            filter: invert(1);
+            background: rgba(0, 0, 0, 0.2);
+        }
+
+        .auth-logout-btn img {
+            width: 19px;
+            height: 19px;
+            object-fit: contain;
+        }
+
+        .ranked-toolbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            flex-wrap: nowrap;
+            margin-bottom: 12px;
+        }
+
+        .ranked-tabs,
+        .ranked-metrics {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .ranked-tabs {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .ranked-refresh-btn {
+            width: 44px;
+            height: 44px;
+            padding: 0;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            flex: 0 0 auto;
+        }
+
+        .ranked-refresh-btn svg {
+            width: 18px;
+            height: 18px;
+            stroke-width: 2.2;
+            display: block;
+            color: #e6eeff;
+        }
+
+        .ranked-shell {
+            background: linear-gradient(145deg, rgba(14, 18, 40, 0.85), rgba(9, 11, 28, 0.9));
+            border: 1px solid rgba(130, 173, 255, 0.24);
+            border-radius: 18px;
+            padding: 14px;
+            box-shadow: 0 24px 40px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+        }
+
+        .mmr-info-card {
+            margin-bottom: 12px;
+            padding: 12px;
+            border-radius: 12px;
+            border: 1px solid rgba(125, 170, 255, 0.35);
+            background: linear-gradient(135deg, rgba(125, 170, 255, 0.14), rgba(125, 170, 255, 0.05));
+        }
+
+        .mmr-info-title {
+            font-size: 0.82rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.07em;
+            margin-bottom: 6px;
+            color: #eaf2ff;
+        }
+
+        .mmr-info-text {
+            font-size: 0.85rem;
+            line-height: 1.4;
+            color: #e0e9ff;
+            opacity: 0.95;
+        }
+
+        .ranked-view {
+            max-height: 420px;
+            overflow-y: auto;
+            padding-right: 6px;
+        }
+
+        .ranked-view::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .ranked-view::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 999px;
+        }
+
+        .metric-btn.active,
+        .tab-btn.active {
+            border-color: rgba(91, 232, 255, 0.7) !important;
+            box-shadow: 0 0 0 1px rgba(91, 232, 255, 0.35), 0 10px 18px rgba(91, 232, 255, 0.16);
+            background: rgba(91, 232, 255, 0.15) !important;
+        }
+
+        .tab-btn,
+        .metric-btn {
+            text-transform: none;
+            letter-spacing: 0.04em;
+            font-size: 0.8rem;
+            padding: 11px 14px;
+        }
+
+        .leaderboard-list {
+            display: grid;
+            gap: 10px;
+        }
+
+        .lb-item {
+            display: grid;
+            grid-template-columns: auto minmax(0, 1fr) auto;
+            align-items: center;
+            gap: 14px;
+            padding: 12px;
+            border-radius: 14px;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.07), rgba(255, 255, 255, 0.02));
+        }
+
+        .lb-item.top-1 {
+            border-color: rgba(255, 215, 0, 0.55);
+            box-shadow: 0 0 0 1px rgba(255, 215, 0, 0.25), 0 10px 20px rgba(255, 215, 0, 0.12);
+        }
+
+        .lb-item.top-2,
+        .lb-item.top-3 {
+            border-color: rgba(125, 170, 255, 0.45);
+        }
+
+        .lb-rank {
+            width: 42px;
+            height: 42px;
+            border-radius: 12px;
+            display: grid;
+            place-items: center;
+            font-weight: 900;
+            font-size: 0.86rem;
+            letter-spacing: 0.02em;
+            background: rgba(0, 0, 0, 0.35);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .lb-player {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            min-width: 0;
+        }
+
+        .lb-avatar,
+        .lb-avatar-fallback {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            object-fit: cover;
+            border: 1px solid rgba(255, 255, 255, 0.22);
+            background: rgba(0, 0, 0, 0.35);
+            display: grid;
+            place-items: center;
+            font-size: 1rem;
+            font-weight: 800;
+        }
+
+        .lb-meta {
+            min-width: 0;
+            display: grid;
+            gap: 4px;
+        }
+
+        .lb-name {
+            font-weight: 800;
+            line-height: 1.1;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .lb-sub {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .lb-stats {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: flex-end;
+            gap: 8px;
+        }
+
+        .lb-pill {
+            padding: 6px 9px;
+            border-radius: 999px;
+            background: rgba(0, 0, 0, 0.32);
+            border: 1px solid rgba(255, 255, 255, 0.14);
+            font-size: 0.72rem;
+            color: #f7fbff;
+            line-height: 1;
+        }
+
+        .lb-pill strong {
+            color: var(--accent-cyan);
+            font-size: 0.8rem;
+        }
+
+        .profile-summary-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 8px;
+        }
+
+        .profile-kv {
+            padding: 10px;
+            border-radius: 12px;
+            background: rgba(0, 0, 0, 0.28);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+        }
+
+        .profile-kv .ranked-label {
+            font-size: 0.68rem;
+        }
+
+        .matches-list {
+            margin-top: 12px;
+            display: grid;
+            gap: 8px;
+        }
+
+        .match-item {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) auto;
+            gap: 10px;
+            align-items: center;
+            padding: 10px 12px;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            background: rgba(0, 0, 0, 0.25);
+        }
+
+        .match-pills {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: flex-end;
+            gap: 6px;
+        }
+
+        .match-title {
+            font-size: 0.82rem;
+            font-weight: 700;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .match-sub {
+            font-size: 0.72rem;
+            color: var(--text-secondary);
         }
 
         .form-group {
@@ -659,6 +1135,12 @@
             gap: 16px;
         }
 
+        .room-meta {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
         .room-code {
             background: linear-gradient(135deg, var(--accent-purple), var(--accent-pink));
             padding: 8px 16px;
@@ -671,6 +1153,15 @@
         .room-name {
             font-weight: 600;
             color: var(--text-secondary);
+        }
+
+        .now-playing {
+            font-size: 0.82rem;
+            color: var(--accent-cyan);
+            max-width: 420px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
         .header-actions {
@@ -835,6 +1326,26 @@
 
         .player-node.active .player-name {
             color: var(--accent-gold);
+        }
+
+        .player-username {
+            margin-top: 2px;
+            font-size: 0.72rem;
+            opacity: 0.8;
+            max-width: 120px;
+            text-align: center;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            display: none;
+        }
+
+        .player-avatar-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: inherit;
+            display: block;
         }
 
         .player-score {
@@ -1203,11 +1714,33 @@
         }
 
         .player-chip .avatar {
-            font-size: 1.5rem;
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            object-fit: cover;
+            background: rgba(255, 255, 255, 0.1);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            overflow: hidden;
+            font-size: 1.2rem;
         }
 
         .player-chip .name {
             font-weight: 600;
+        }
+
+        .player-chip .name-meta {
+            display: flex;
+            flex-direction: column;
+            line-height: 1.1;
+            gap: 3px;
+        }
+
+        .player-chip .username {
+            font-size: 0.72rem;
+            opacity: 0.8;
         }
 
         .player-chip .ready-dot {
@@ -1263,6 +1796,177 @@
 
         .setting-label {
             font-weight: 600;
+        }
+
+        .setting-label-ranked {
+            color: #cffff7;
+            font-weight: 700;
+        }
+
+        .settings-panel .setting-row .checkbox-group {
+            margin-left: auto;
+            padding: 6px 10px;
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.14);
+            background: rgba(0, 0, 0, 0.28);
+            gap: 8px;
+            max-width: 230px;
+            justify-content: flex-end;
+        }
+
+        .settings-panel .setting-row .checkbox-group span {
+            font-size: 0.74rem;
+            color: #d9d2e8;
+            line-height: 1.25;
+            text-align: right;
+        }
+
+        .settings-panel .setting-row .checkbox-group input {
+            width: 18px;
+            height: 18px;
+            flex-shrink: 0;
+            accent-color: var(--accent-cyan);
+        }
+
+        .settings-panel .ranked-setting-row {
+            align-items: flex-start;
+            gap: 12px;
+        }
+
+        .music-manager {
+            margin-top: 10px;
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+            padding-top: 10px;
+        }
+
+        .music-manager h4,
+        .guest-music-panel h4 {
+            margin-bottom: 6px;
+            font-size: 0.82rem;
+            color: var(--text-secondary);
+        }
+
+        .music-input-row {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 6px;
+        }
+
+        .music-input-row .form-input {
+            margin-bottom: 0;
+        }
+
+        .music-input-row .btn {
+            width: auto;
+            min-width: 84px;
+            padding: 8px 10px;
+        }
+
+        .guest-music-panel {
+            width: 100%;
+            max-width: 420px;
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+            padding: 14px;
+            margin-bottom: 12px;
+        }
+
+        .music-list-wrap {
+            margin-top: 6px;
+        }
+
+        .music-list-title {
+            font-size: 0.76rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--text-secondary);
+            margin-bottom: 6px;
+        }
+
+        .music-list {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            height: min-content;
+            overflow-y: auto;
+            padding-right: 4px;
+        }
+
+        .music-list::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .music-list::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.24);
+            border-radius: 999px;
+        }
+
+        .music-list::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.06);
+            border-radius: 999px;
+        }
+
+        .music-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            background: rgba(0, 0, 0, 0.25);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 10px;
+            padding: 8px 10px;
+        }
+
+        .music-row.active {
+            border-color: var(--accent-cyan);
+        }
+
+        .music-row-title {
+            flex: 1;
+            min-width: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .music-row-title strong {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            font-size: 0.84rem;
+        }
+
+        .music-row-title span {
+            font-size: 0.72rem;
+            color: var(--text-secondary);
+        }
+
+        .music-row-actions {
+            display: flex;
+            gap: 5px;
+            flex-shrink: 0;
+        }
+
+        .music-row-actions button {
+            min-width: 30px;
+            height: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text-primary);
+            cursor: pointer;
+            font-size: 0.8rem;
+        }
+
+        #yt-music-player {
+            position: fixed;
+            width: 1px;
+            height: 1px;
+            left: -1000px;
+            top: -1000px;
+            opacity: 0;
+            pointer-events: none;
         }
 
         .setting-input {
@@ -1523,6 +2227,12 @@
 
         .ranking-avatar {
             font-size: 1.5rem;
+            width: 42px;
+            height: 42px;
+            border-radius: 999px;
+            display: grid;
+            place-items: center;
+            border: 1px solid rgba(255, 255, 255, 0.2);
         }
 
         .ranking-info {
@@ -1809,6 +2519,52 @@
                 bottom: 100px;
             }
 
+            .home-rank-actions {
+                grid-template-columns: 1fr;
+            }
+
+            .ranked-toolbar {
+                flex-direction: row;
+                align-items: center;
+            }
+
+            .ranked-tabs,
+            .ranked-metrics {
+                width: 100%;
+            }
+
+            .ranked-tabs .btn,
+            .ranked-metrics .btn {
+                flex: 1;
+            }
+
+            .ranked-toolbar .ranked-refresh-btn {
+                width: 42px;
+                height: 42px;
+            }
+
+            .lb-item {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+
+            .lb-stats {
+                justify-content: flex-start;
+            }
+
+            .profile-summary-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .match-item {
+                grid-template-columns: 1fr;
+                gap: 6px;
+            }
+
+            .match-pills {
+                justify-content: flex-start;
+            }
+
             .game-over-overlay {
                 padding: 20px 14px;
             }
@@ -1837,6 +2593,21 @@
 
             .rankings-list {
                 max-height: 220px;
+            }
+
+            .settings-panel .ranked-setting-row {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .settings-panel .setting-row .checkbox-group {
+                margin-left: 0;
+                max-width: 100%;
+                justify-content: flex-start;
+            }
+
+            .settings-panel .setting-row .checkbox-group span {
+                text-align: left;
             }
         }
 
@@ -2034,9 +2805,47 @@
         </div>
 
         <div class="home-form">
-            <div class="form-group">
+            <div class="auth-row">
+                <button id="btn-auth-guest" class="auth-option guest active">
+                    <img class="auth-option-icon" src="https://www.svgrepo.com/show/79039/guest.svg" alt="">
+                    <span class="auth-option-label">Guest Login</span>
+                </button>
+                <button id="btn-discord-login" class="auth-option discord">
+                    <img class="auth-option-icon" src="https://uxwing.com/wp-content/themes/uxwing/download/brands-and-social-media/discord-color-icon.png" alt="">
+                    <span class="auth-option-label">Discord Login</span>
+                </button>
+            </div>
+            <div id="auth-user-card" class="auth-user-card">
+                <img id="auth-user-avatar" alt="discord avatar">
+                <div class="auth-user-meta">
+                    <span id="auth-user-name" class="auth-user-name">Discord User</span>
+                    <span id="auth-user-handle" class="auth-user-handle">@discord</span>
+                </div>
+                <button id="btn-auth-logout" class="auth-option auth-logout-btn" style="display:none;" aria-label="Logout">
+                    <img src="https://assets.streamlinehq.com/image/private/w_300,h_300,ar_1/f_auto/v1/icons/c4/logout-31dva2zl3l9ao92pwnmgnt.png/logout-6bjs3s3fnciv7c0ye52y3l.png?_a=DATAiZAAZAA0" alt="">
+                </button>
+            </div>
+            <div class="form-group" id="guest-name-group" style="display:none;">
                 <label class="form-label">შენი სახელი</label>
                 <input type="text" id="player-name" class="form-input" placeholder="ჩაწერე სახელი..." maxlength="20">
+            </div>
+            <div class="ranked-preview" id="home-ranked-preview">
+                <div class="ranked-row">
+                    <span class="ranked-label">რანგი</span>
+                    <span class="ranked-badge bronze" id="home-rank-badge">ბრინჯაო</span>
+                </div>
+                <div class="ranked-row">
+                    <span class="ranked-label">MMR</span>
+                    <span class="ranked-value" id="home-rank-mmr">1000</span>
+                </div>
+                <div class="ranked-row">
+                    <span class="ranked-label">სტატისტიკა</span>
+                    <span class="ranked-value" id="home-rank-record">0W / 0L</span>
+                </div>
+            </div>
+            <div class="home-rank-actions" id="home-rank-actions">
+                <button id="btn-open-leaderboard" class="btn btn-ghost">🏆 ლიდერბორდი</button>
+                <button id="btn-open-profile" class="btn btn-ghost">👤 პროფილი</button>
             </div>
             <button id="btn-browse" class="btn btn-primary">
                 <span>🎮</span> ლობის ძებნა
@@ -2044,7 +2853,7 @@
             <button id="btn-quick-create" class="btn btn-secondary">
                 <span>⚡</span> სწრაფი შექმნა
             </button>
-            <button id="btn-audio-home" class="btn btn-ghost" style="margin-top: 20px;">
+            <button id="btn-audio-home" class="btn btn-ghost">
                 <span>🔊</span> ხმის პარამეტრები
             </button>
         </div>
@@ -2090,6 +2899,10 @@
                 <input type="text" id="lobby-name" class="form-input" placeholder="ჩემი ლობი" maxlength="30">
             </div>
             <div class="form-group">
+                <label class="form-label">YouTube სიმღერა (არასავალდებულო)</label>
+                <input type="url" id="lobby-music-url" class="form-input" placeholder="https://www.youtube.com/watch?v=...">
+            </div>
+            <div class="form-group">
                 <label class="checkbox-group">
                     <input type="checkbox" id="lobby-public" checked>
                     <span>საჯარო ლობი (ჩანს სიაში)</span>
@@ -2126,14 +2939,82 @@
             <div class="audio-toggles">
                 <label class="audio-toggle">
                     <input type="checkbox" id="music-enabled" checked>
-                    <span>მუსიკის ჩართვა</span>
+                    <span>მუსიკა</span>
                 </label>
                 <label class="audio-toggle">
                     <input type="checkbox" id="sfx-enabled" checked>
-                    <span>ხმების ჩართვა</span>
+                    <span>ხმოვანი ეფექტები</span>
                 </label>
             </div>
             <button id="btn-close-audio" class="btn btn-primary" style="margin-top: 20px;">მზადაა</button>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="ranked-modal">
+        <div class="modal" style="max-width: 920px;">
+            <h2><span>🏆</span> რეიტინგი და ლიდერბორდი</h2>
+            <div class="ranked-shell">
+                <div class="ranked-toolbar">
+                    <div class="ranked-tabs">
+                        <button id="btn-ranked-tab-leaderboard" class="btn btn-secondary tab-btn active">ლიდერბორდი</button>
+                        <button id="btn-ranked-tab-profile" class="btn btn-ghost tab-btn">პროფილი</button>
+                    </div>
+                    <button id="btn-ranked-refresh" class="btn btn-ghost ranked-refresh-btn" type="button" aria-label="განახლება" title="განახლება">
+                        <svg class="lucide lucide-refresh-cw" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <path d="M21 2v6h-6"></path>
+                            <path d="M3 12a9 9 0 0 1 15-6.7L21 8"></path>
+                            <path d="M3 22v-6h6"></path>
+                            <path d="M21 12a9 9 0 0 1-15 6.7L3 16"></path>
+                        </svg>
+                    </button>
+                </div>
+
+                <div class="ranked-metrics" id="ranked-metrics" style="margin-bottom: 12px;">
+                    <button id="btn-ranked-metric-mmr" class="btn btn-ghost metric-btn active">MMR</button>
+                    <button id="btn-ranked-metric-words" class="btn btn-ghost metric-btn">სიტყვები</button>
+                    <button id="btn-ranked-metric-longest" class="btn btn-ghost metric-btn">ყველაზე გრძელი თამაშები</button>
+                </div>
+
+                <div class="mmr-info-card" id="mmr-info-card">
+                    <div class="mmr-info-title">MMR Info</div>
+                    <div class="mmr-info-text" id="mmr-info-text"></div>
+                </div>
+                <div id="ranked-leaderboard-view" class="ranked-view">
+                    <div id="ranked-leaderboard-body" class="leaderboard-list"></div>
+                </div>
+
+                <div id="ranked-profile-view" class="ranked-view" style="display: none;">
+                    <div class="ranked-preview" id="profile-summary"></div>
+                    <div id="ranked-profile-matches" class="matches-list"></div>
+                </div>
+            </div>
+
+            <button id="btn-close-ranked" class="btn btn-primary" style="margin-top: 16px;">დახურვა</button>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="host-music-modal">
+        <div class="modal" style="max-width: 620px;">
+            <h2>მორგებული მუსიკა
+</h2>
+            <div class="music-manager" style="border-top: none; padding-top: 0; margin-top: 0;">
+                <div class="music-input-row">
+                    <input type="url" id="host-music-url" class="form-input" placeholder="ჩასვი YouTube ბმული">
+                    <button id="btn-host-add-song" class="btn btn-ghost" type="button">დამატება</button>
+                </div>
+                <div class="music-input-row">
+                    <button id="btn-host-next-song" class="btn btn-secondary" type="button">შემდეგის ჩართვა</button>
+                </div>
+                <div class="music-list-wrap">
+                    <div class="music-list-title">შემოთავაზებები</div>
+                    <div id="music-proposals" class="music-list">ჯერ შემოთავაზებები არ არის</div>
+                </div>
+                <div class="music-list-wrap">
+                    <div class="music-list-title">დაკვრის რიგი</div>
+                    <div id="music-queue" class="music-list"></div>
+                </div>
+            </div>
+            <button id="btn-close-host-music" class="btn btn-primary" style="margin-top: 16px;">დახურვა</button>
         </div>
     </div>
 
@@ -2142,7 +3023,10 @@
         <div class="game-header">
             <div class="room-info">
                 <div class="room-code" id="room-code">ABCD12</div>
-                <div class="room-name" id="room-name">Lobby Name</div>
+                <div class="room-meta">
+                    <div class="room-name" id="room-name">ლობის სახელი</div>
+                    <div class="now-playing" id="now-playing">ახლა უკრავს: ნაგულისხმევი ფონური მუსიკა</div>
+                </div>
             </div>
             <div class="header-actions">
                 <button id="btn-audio" class="btn btn-ghost btn-audio">🔊</button>
@@ -2180,7 +3064,7 @@
                     </svg>
                     <div class="syllable-display" id="syllable-display">---</div>
                     <div class="timer-display" id="timer-display">10.00</div>
-                    <div class="difficulty-display" id="difficulty-display">Level 0 | Min 2</div>
+                    <div class="difficulty-display" id="difficulty-display">ლეველი 0 | წთ 2</div>
                 </div>
             </div>
 
@@ -2206,8 +3090,24 @@
                             <span class="setting-label">მაქს. მოთამაშეები</span>
                             <input type="number" id="set-players" class="setting-input" value="8" min="2" max="12">
                         </div>
+                        <div class="setting-row ranked-setting-row">
+                            <span class="setting-label setting-label-ranked">რეიტინგული რეჟიმი</span>
+                            <label class="checkbox-group">
+                                <input type="checkbox" id="set-ranked">
+                            </label>
+                        </div>
                     </div>
+                    <button id="btn-open-host-music" class="btn btn-ghost" type="button">მორგებული მუსიკა</button>
                     <button id="btn-start-game" class="btn btn-primary">🚀 დაწყება</button>
+                </div>
+
+                
+                <div class="guest-music-panel" id="guest-music-panel" style="display:none;">
+                    <h4>სიმღერის შეთავაზება</h4>
+                    <div class="music-input-row">
+                        <input type="url" id="guest-music-url" class="form-input" placeholder="ჩასვი YouTube ბმული">
+                        <button id="btn-propose-song" class="btn btn-secondary" type="button">გაგზავნა</button>
+                    </div>
                 </div>
 
                 <button id="btn-ready" class="btn btn-secondary" style="max-width: 200px;">✋ მზად ვარ</button>
@@ -2219,12 +3119,12 @@
                     <div class="winner-badge" id="winner-badge">🏁 თამაში დასრულდა</div>
                     <div class="winner-avatar" id="winner-avatar">🏆</div>
                     <h2 class="winner-title" id="winner-title">გამარჯვებული!</h2>
-                    <p class="winner-name" id="winner-name">Player Name</p>
-                    <p class="winner-subtitle" id="winner-subtitle">Final results</p>
-                    <p class="winner-score" id="winner-score">0 pts</p>
+                    <p class="winner-name" id="winner-name">მოთამაშე</p>
+                    <p class="winner-subtitle" id="winner-subtitle">საბოლოო შედეგი</p>
+                    <p class="winner-score" id="winner-score">0 ქულა</p>
                 </div>
                 <div class="rankings-list" id="rankings-list"></div>
-                <button class="btn btn-primary w-min" id="btn-play-again">🔄 თავიდან თამაში</button>
+                <button class="btn btn-primary" id="btn-play-again">🔄 თავიდან თამაში</button>
             </div>
 
             <!-- Game Input -->
@@ -2234,12 +3134,22 @@
             </div>
         </div>
     </div>
+    <div id="yt-music-player" aria-hidden="true"></div>
 
     <script>
         // ===================== GAME CLIENT =====================
 
         // Auto-detect server URL - works for local dev and production
         const SERVER_URL = window.location.origin;
+        const SUPABASE_URL = 'https://spzorjtfytprrqkibnto.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNwem9yanRmeXRwcnJxa2libnRvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzEzNTI5NTgsImV4cCI6MjA4NjkyODk1OH0.T36NxsXzUkfcdwVCdEZEYeewqvwo3wJJBu2xUztQsPA';
+        const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+            auth: {
+                persistSession: true,
+                autoRefreshToken: true,
+                detectSessionInUrl: true
+            }
+        });
 
         const socket = io(SERVER_URL, {
             reconnection: true,
@@ -2257,8 +3167,272 @@
             playerName: localStorage.getItem('bombparty_player_name') || '',
             currentLobby: JSON.parse(localStorage.getItem('bombparty_current_lobby') || 'null'),
             isHost: false,
-            gameState: null
+            gameState: null,
+            auth: {
+                provider: 'guest',
+                isDiscord: false,
+                discordUser: null,
+                homeEntered: false,
+                guestInputVisible: false,
+                accessToken: null
+            },
+            ranked: {
+                metric: 'mmr',
+                activeTab: 'leaderboard',
+                profile: null,
+                leaderboard: [],
+                info: {
+                    base: 1000,
+                    kFactor: 38,
+                    maxDelta: 55
+                }
+            }
         };
+
+        function getRankClass(label = '') {
+            const value = String(label).toLowerCase();
+            if (value.includes('diamond')) return 'diamond';
+            if (value.includes('platinum')) return 'platinum';
+            if (value.includes('gold')) return 'gold';
+            if (value.includes('silver')) return 'silver';
+            return 'bronze';
+        }
+
+        function translateRankLabel(label = '') {
+            const value = String(label).toLowerCase();
+            if (value.includes('diamond')) return 'ბრილიანტი';
+            if (value.includes('platinum')) return 'პლატინა';
+            if (value.includes('gold')) return 'ოქრო';
+            if (value.includes('silver')) return 'ვერცხლი';
+            return 'ბრინჯაო';
+        }
+
+        function safeAvatarUrl(url) {
+            if (!url || typeof url !== 'string') return '';
+            const trimmed = url.trim();
+            if (!trimmed) return '';
+            if (trimmed.startsWith('https://') || trimmed.startsWith('http://')) return trimmed;
+            return '';
+        }
+
+        const GUEST_AVATARS = ['🐱', '🐶', '🦊', '🐻', '🐼', '🐨', '🐯', '🦁', '🐮', '🐷', '🐸', '🐵',
+            '🦄', '🐲', '🦋', '🐙', '🦀', '🐬', '🦅', '🦉', '🐺', '🦈', '🐊', '🦖'];
+        const GUEST_COLORS = ['#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7', '#DDA0DD',
+            '#98D8C8', '#F7DC6F', '#BB8FCE', '#85C1E9', '#F8B500', '#00CED1'];
+
+        function stableHash(value = '') {
+            let hash = 0;
+            const input = String(value);
+            for (let i = 0; i < input.length; i++) {
+                hash = ((hash << 5) - hash + input.charCodeAt(i)) | 0;
+            }
+            return Math.abs(hash);
+        }
+
+        function isGuestPlayer(player = {}) {
+            const provider = String(player.provider || '').toLowerCase();
+            if (provider) return provider === 'guest';
+            return !String(player.id || '').startsWith('discord_');
+        }
+
+        function getGuestVisuals(playerId = '') {
+            const id = String(playerId || 'guest');
+            return {
+                emoji: GUEST_AVATARS[stableHash(`avatar:${id}`) % GUEST_AVATARS.length],
+                color: GUEST_COLORS[stableHash(`color:${id}`) % GUEST_COLORS.length]
+            };
+        }
+
+        function getPlayerAvatarVisual(player = {}) {
+            if (isGuestPlayer(player)) {
+                const guest = getGuestVisuals(player.id);
+                return {
+                    emoji: player.avatar || guest.emoji,
+                    color: player.color || guest.color
+                };
+            }
+            return {
+                emoji: player.avatar || '🙂',
+                color: player.color || 'rgba(255, 255, 255, 0.1)'
+            };
+        }
+
+        function buildEmojiAvatarDataUrl(emoji = '🙂', color = '#4ECDC4') {
+            const safeEmoji = String(emoji || '🙂');
+            const safeColor = String(color || '#4ECDC4');
+            const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="38" height="38"><rect width="38" height="38" rx="19" fill="${safeColor}"/><text x="19" y="24" text-anchor="middle" font-size="18">${safeEmoji}</text></svg>`;
+            return `data:image/svg+xml,${encodeURIComponent(svg)}`;
+        }
+
+        async function apiRequest(path, options = {}) {
+            const headers = options.headers || {};
+            headers['Content-Type'] = 'application/json';
+            if (state.auth.accessToken) {
+                headers['Authorization'] = `Bearer ${state.auth.accessToken}`;
+            }
+            return fetch(path, {
+                ...options,
+                headers
+            });
+        }
+
+        function updateAuthUi() {
+            const guestBtn = document.getElementById('btn-auth-guest');
+            const loginBtn = document.getElementById('btn-discord-login');
+            const logoutBtn = document.getElementById('btn-auth-logout');
+            const guestNameGroup = document.getElementById('guest-name-group');
+            const nameInput = document.getElementById('player-name');
+            const userCard = document.getElementById('auth-user-card');
+            const userAvatar = document.getElementById('auth-user-avatar');
+            const userName = document.getElementById('auth-user-name');
+            const userHandle = document.getElementById('auth-user-handle');
+            const rankedPreview = document.getElementById('home-ranked-preview');
+            const rankActions = document.getElementById('home-rank-actions');
+            const browseBtn = document.getElementById('btn-browse');
+            const quickCreateBtn = document.getElementById('btn-quick-create');
+
+            const isEntered = Boolean(state.auth.isDiscord || state.auth.homeEntered);
+            const isDiscord = Boolean(state.auth.isDiscord);
+
+            if (!isEntered) {
+                guestBtn.style.display = 'inline-flex';
+                loginBtn.style.display = 'inline-flex';
+                logoutBtn.style.display = 'none';
+                guestBtn.classList.add('active');
+                loginBtn.classList.remove('active');
+                guestNameGroup.style.display = 'none';
+                nameInput.disabled = false;
+                userCard.style.display = 'none';
+                rankedPreview.style.display = 'none';
+                rankActions.style.display = 'none';
+                browseBtn.style.display = 'none';
+                quickCreateBtn.style.display = 'none';
+                return;
+            }
+
+            guestBtn.style.display = 'none';
+            loginBtn.style.display = 'none';
+            logoutBtn.style.display = 'inline-flex';
+            rankedPreview.style.display = '';
+            rankActions.style.display = '';
+            browseBtn.style.display = '';
+            quickCreateBtn.style.display = '';
+
+            if (isDiscord) {
+                guestBtn.classList.remove('active');
+                loginBtn.classList.add('active');
+                guestNameGroup.style.display = 'none';
+                nameInput.value = state.playerName || '';
+                nameInput.disabled = true;
+
+                const discordUser = state.auth.discordUser || {};
+                const avatarUrl = safeAvatarUrl(discordUser.avatar || '');
+                userCard.style.display = 'flex';
+                userAvatar.src = avatarUrl || 'data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2238%22 height=%2238%22%3E%3Crect width=%2238%22 height=%2238%22 rx=%2219%22 fill=%22%235865F2%22/%3E%3Ctext x=%2219%22 y=%2224%22 text-anchor=%22middle%22 fill=%22white%22 font-size=%2218%22 font-family=%22Arial%22%3ED%3C/text%3E%3C/svg%3E';
+                userName.textContent = discordUser.displayName || state.playerName || 'Discord User';
+                userHandle.textContent = `@${discordUser.username || 'discord'}`;
+            } else {
+                guestBtn.classList.add('active');
+                loginBtn.classList.remove('active');
+                guestNameGroup.style.display = 'block';
+                nameInput.disabled = false;
+                userCard.style.display = 'flex';
+                const guestVisual = getGuestVisuals(state.playerId || 'guest');
+                userAvatar.src = buildEmojiAvatarDataUrl(guestVisual.emoji, guestVisual.color);
+                userName.textContent = state.playerName || 'Guest';
+                userHandle.textContent = '@guest';
+            }
+        }
+
+        async function loadAuthSession() {
+            try {
+                const { data: sessionData } = await supabaseClient.auth.getSession();
+                const session = sessionData?.session || null;
+                state.auth.accessToken = session?.access_token || null;
+
+                const response = await apiRequest('/api/auth/me');
+                if (!response.ok) {
+                    updateAuthUi();
+                    return;
+                }
+
+                const data = await response.json();
+                if (data.authenticated && data.user?.provider === 'discord' && state.auth.accessToken) {
+                    state.auth.provider = 'discord';
+                    state.auth.isDiscord = true;
+                    state.auth.discordUser = data.user;
+                    state.auth.homeEntered = true;
+                    state.playerId = data.user.id;
+                    state.playerName = data.user.displayName || data.user.username || state.playerName;
+                    localStorage.setItem('bombparty_player_id', state.playerId);
+                    localStorage.setItem('bombparty_player_name', state.playerName);
+                } else {
+                    state.auth.provider = 'guest';
+                    state.auth.isDiscord = false;
+                    state.auth.discordUser = null;
+                    state.auth.homeEntered = false;
+                    state.auth.guestInputVisible = false;
+                    state.auth.accessToken = null;
+                }
+                updateAuthUi();
+            } catch (error) {
+                console.warn('Auth session load failed:', error);
+            }
+        }
+
+        supabaseClient.auth.onAuthStateChange((_event, session) => {
+            state.auth.accessToken = session?.access_token || null;
+            if (!session) {
+                state.auth.provider = 'guest';
+                state.auth.isDiscord = false;
+                state.auth.discordUser = null;
+                state.auth.homeEntered = false;
+                state.auth.guestInputVisible = false;
+                state.playerId = null;
+                updateAuthUi();
+            }
+        });
+
+        async function startDiscordAuth() {
+            const redirectTo = `${window.location.origin}${window.location.pathname || '/'}`;
+            const { error } = await supabaseClient.auth.signInWithOAuth({
+                provider: 'discord',
+                options: { redirectTo }
+            });
+            if (error) {
+                console.error('Discord auth start failed:', error);
+                showToast('Discord ავტორიზაცია ვერ დაიწყო', 'error');
+            }
+        }
+
+        async function logoutDiscord() {
+            try {
+                await supabaseClient.auth.signOut();
+            } catch (error) {
+                console.warn('Logout failed:', error);
+            } finally {
+                state.auth.provider = 'guest';
+                state.auth.isDiscord = false;
+                state.auth.discordUser = null;
+                state.auth.homeEntered = false;
+                state.auth.guestInputVisible = false;
+                state.auth.accessToken = null;
+                localStorage.removeItem('bombparty_player_id');
+                state.playerId = null;
+                updateAuthUi();
+                showToast('Discord ანგარიშიდან გამოხვედი', 'success');
+            }
+        }
+        function logoutGuestMode() {
+            state.auth.provider = 'guest';
+            state.auth.isDiscord = false;
+            state.auth.discordUser = null;
+            state.auth.homeEntered = false;
+            state.auth.guestInputVisible = false;
+            localStorage.removeItem('bombparty_player_id');
+            state.playerId = null;
+            updateAuthUi();
+        }
 
         // ============ DOM ELEMENTS ============
         const screens = {
@@ -2445,6 +3619,12 @@
             bgMusic: null,
             bgMusicGain: null,
             isInitialized: false,
+            youtubeApiLoading: false,
+            youtubeApiReady: false,
+            youtubePlayer: null,
+            youtubeVideoId: null,
+            activeTrackId: null,
+            lastReportedTrackTitleKey: '',
 
             init() {
                 if (this.isInitialized) return;
@@ -2509,6 +3689,7 @@
                 if (this.bgMusicGain) {
                     this.bgMusicGain.gain.value = this.musicEnabled ? vol : 0;
                 }
+                this.applyYoutubeVolume();
                 this.saveSettings();
                 this.updateUI();
             },
@@ -2524,9 +3705,8 @@
                 if (this.bgMusicGain) {
                     this.bgMusicGain.gain.value = enabled ? this.musicVolume : 0;
                 }
-                if (enabled && !this.bgMusic) {
-                    this.startBackgroundMusic();
-                }
+                this.applyYoutubeVolume();
+                if (enabled) this.syncMusicSource();
                 this.saveSettings();
                 this.updateUI();
             },
@@ -2686,6 +3866,8 @@
             // Background music using oscillators
             startBackgroundMusic() {
                 if (!this.ctx || !this.musicEnabled || this.bgMusic) return;
+                const hasCustomTrack = Boolean(state.gameState?.music?.currentTrack?.videoId);
+                if (hasCustomTrack) return;
                 if (this.ctx.state === 'suspended') this.ctx.resume();
 
                 // Create a simple ambient pad
@@ -2741,6 +3923,155 @@
                 this.bgMusic = setInterval(playChord, 4000);
             },
 
+            ensureYoutubeApi() {
+                if (this.youtubeApiReady || this.youtubeApiLoading) return;
+                this.youtubeApiLoading = true;
+
+                const script = document.createElement('script');
+                script.src = 'https://www.youtube.com/iframe_api';
+                script.async = true;
+                document.head.appendChild(script);
+
+                const prev = window.onYouTubeIframeAPIReady;
+                window.onYouTubeIframeAPIReady = () => {
+                    this.youtubeApiReady = true;
+                    this.youtubeApiLoading = false;
+                    if (typeof prev === 'function') prev();
+                    this.ensureYoutubePlayer();
+                };
+            },
+
+            ensureYoutubePlayer() {
+                if (!this.youtubeApiReady || this.youtubePlayer || !window.YT || !window.YT.Player) return;
+                this.youtubePlayer = new window.YT.Player('yt-music-player', {
+                    height: '1',
+                    width: '1',
+                    playerVars: {
+                        autoplay: 1,
+                        controls: 0,
+                        rel: 0,
+                        modestbranding: 1
+                    },
+                    events: {
+                        onReady: () => {
+                            this.applyYoutubeVolume();
+                            this.tryReportCurrentTrackTitle();
+                        },
+                        onStateChange: (event) => {
+                            if (event.data === window.YT.PlayerState.PLAYING || event.data === window.YT.PlayerState.CUED) {
+                                this.tryReportCurrentTrackTitle();
+                            }
+                            if (event.data === window.YT.PlayerState.ENDED && state.isHost && this.activeTrackId) {
+                                socket.emit('music:player-ended', { trackId: this.activeTrackId });
+                            }
+                        }
+                    }
+                });
+            },
+
+            applyYoutubeVolume() {
+                if (!this.youtubePlayer || typeof this.youtubePlayer.setVolume !== 'function') return;
+                const volumePct = Math.round(this.musicVolume * 100);
+                try {
+                    this.youtubePlayer.setVolume(volumePct);
+                    if (!this.musicEnabled || volumePct === 0) this.youtubePlayer.mute();
+                    else this.youtubePlayer.unMute();
+                } catch (e) { }
+            },
+
+            playYoutube(videoId, trackId = null) {
+                if (!videoId) return;
+                this.stopBackgroundMusic();
+                this.ensureYoutubeApi();
+
+                const loadVideo = () => {
+                    if (!this.youtubePlayer || typeof this.youtubePlayer.loadVideoById !== 'function') return;
+                    if (this.youtubeVideoId === videoId) {
+                        this.applyYoutubeVolume();
+                        try { this.youtubePlayer.playVideo(); } catch (e) { }
+                        return;
+                    }
+                    this.youtubeVideoId = videoId;
+                    this.activeTrackId = trackId;
+                    this.lastReportedTrackTitleKey = '';
+                    this.youtubePlayer.loadVideoById(videoId);
+                    this.applyYoutubeVolume();
+                    setTimeout(() => this.tryReportCurrentTrackTitle(), 500);
+                    setTimeout(() => this.tryReportCurrentTrackTitle(), 1500);
+                };
+
+                const waitForPlayer = (attempts = 0) => {
+                    if (this.youtubePlayer) {
+                        loadVideo();
+                        return;
+                    }
+                    if (attempts > 80) return;
+                    this.ensureYoutubePlayer();
+                    setTimeout(() => waitForPlayer(attempts + 1), 120);
+                };
+
+                waitForPlayer();
+            },
+
+            stopYoutube() {
+                if (this.youtubePlayer) {
+                    try {
+                        if (typeof this.youtubePlayer.pauseVideo === 'function') this.youtubePlayer.pauseVideo();
+                        if (typeof this.youtubePlayer.stopVideo === 'function') this.youtubePlayer.stopVideo();
+                        if (typeof this.youtubePlayer.mute === 'function') this.youtubePlayer.mute();
+                    } catch (e) { }
+
+                    // Hard-stop hidden iframe audio by destroying the player instance.
+                    try {
+                        if (typeof this.youtubePlayer.destroy === 'function') this.youtubePlayer.destroy();
+                    } catch (e) { }
+                }
+
+                this.youtubePlayer = null;
+                this.youtubeVideoId = null;
+                this.activeTrackId = null;
+                this.lastReportedTrackTitleKey = '';
+
+                const host = document.getElementById('yt-music-player');
+                if (host && !host.firstChild) {
+                    // Keep container available for a clean re-init later.
+                    host.innerHTML = '';
+                }
+            },
+
+            tryReportCurrentTrackTitle() {
+                if (!state.isHost || !this.youtubePlayer || !this.activeTrackId) return;
+                if (typeof this.youtubePlayer.getVideoData !== 'function') return;
+
+                let title = '';
+                try {
+                    const videoData = this.youtubePlayer.getVideoData() || {};
+                    title = String(videoData.title || '').trim();
+                } catch (e) {
+                    return;
+                }
+
+                if (!title || /^YouTube$/i.test(title)) return;
+                const key = `${this.activeTrackId}:${title}`;
+                if (this.lastReportedTrackTitleKey === key) return;
+                this.lastReportedTrackTitleKey = key;
+                socket.emit('music:title:update', {
+                    trackId: this.activeTrackId,
+                    title
+                });
+            },
+
+            syncMusicSource() {
+                const currentTrack = state.gameState?.music?.currentTrack || null;
+                if (currentTrack?.videoId) {
+                    this.playYoutube(currentTrack.videoId, currentTrack.id || null);
+                    return;
+                }
+
+                this.stopYoutube();
+                if (this.musicEnabled) this.startBackgroundMusic();
+            },
+
             stopBackgroundMusic() {
                 if (this.bgMusic) {
                     clearInterval(this.bgMusic);
@@ -2753,14 +4084,14 @@
         document.addEventListener('click', () => {
             if (!AudioSystem.isInitialized) {
                 AudioSystem.init();
-                AudioSystem.startBackgroundMusic();
+                AudioSystem.syncMusicSource();
             }
         }, { once: true });
 
         document.addEventListener('keydown', () => {
             if (!AudioSystem.isInitialized) {
                 AudioSystem.init();
-                AudioSystem.startBackgroundMusic();
+                AudioSystem.syncMusicSource();
             }
         }, { once: true });
 
@@ -2790,10 +4121,271 @@
             }
         }
 
+        function hasSupabaseConfig() {
+            return SUPABASE_URL && SUPABASE_ANON_KEY &&
+                !SUPABASE_URL.includes('YOUR_PROJECT_ID') &&
+                !SUPABASE_ANON_KEY.includes('YOUR_SUPABASE_ANON_KEY');
+        }
+
+        function renderMmrInfoCard() {
+            const el = document.getElementById('mmr-info-text');
+            if (!el) return;
+
+            const base = Number(state.ranked.info?.base || 1000);
+            const kFactor = Number(state.ranked.info?.kFactor || 38);
+            const maxDelta = Number(state.ranked.info?.maxDelta || 55);
+
+            el.textContent =
+                `MMR აჩვენებს შენს საკონკურენტო დონეს. იწყება ${base}-დან. ` +
+                `თითოეულ ranked თამაშში ცვლილება ითვლება ასე: ΔMMR = K × (Actual - Expected), სადაც K=${kFactor}. ` +
+                `Actual დამოკიდებულია შენს ადგილზე მატჩში, Expected კი მოწინააღმდეგეების საშუალო MMR-ზე. ` +
+                `ცვლილება იზღუდება მაქსიმუმ ${maxDelta} ქულამდე თითო თამაშზე (±${maxDelta}).`;
+        }
+
+        async function loadRankedInfo() {
+            try {
+                const response = await apiRequest('/api/ranked/config');
+                if (!response.ok) return;
+                const data = await response.json();
+                const mmr = data?.mmr || {};
+                state.ranked.info = {
+                    base: Number(mmr.base ?? state.ranked.info.base),
+                    kFactor: Number(mmr.kFactor ?? state.ranked.info.kFactor),
+                    maxDelta: Number(mmr.maxDelta ?? state.ranked.info.maxDelta)
+                };
+            } catch (error) {
+                console.warn('Could not load ranked info:', error);
+            } finally {
+                renderMmrInfoCard();
+            }
+        }
+
+        async function syncRankedConfig() {
+            if (!hasSupabaseConfig()) return;
+            try {
+                socket.emit('ranked:config', { url: SUPABASE_URL, anonKey: SUPABASE_ANON_KEY });
+                await apiRequest('/api/ranked/config', {
+                    method: 'POST',
+                    body: JSON.stringify({ url: SUPABASE_URL, anonKey: SUPABASE_ANON_KEY })
+                });
+            } catch (error) {
+                console.warn('Ranked config sync failed:', error);
+            }
+        }
+
+        function formatDuration(seconds = 0) {
+            const total = Math.max(0, Number(seconds || 0));
+            const m = Math.floor(total / 60);
+            const s = total % 60;
+            return `${m}:${String(s).padStart(2, '0')}`;
+        }
+
+        function formatMatchDate(value) {
+            if (!value) return '';
+            const date = new Date(value);
+            if (Number.isNaN(date.getTime())) return '';
+            return date.toLocaleString('ka-GE', {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+
+        function parseRankings(value) {
+            if (Array.isArray(value)) return value;
+            if (typeof value !== 'string') return [];
+            try {
+                const parsed = JSON.parse(value);
+                return Array.isArray(parsed) ? parsed : [];
+            } catch (_) {
+                return [];
+            }
+        }
+
+        function metricLabel(metric = 'mmr') {
+            if (metric === 'words') return 'სულ სიტყვები';
+            if (metric === 'longest_game') return 'ყველაზე გრძელი თამაში';
+            return 'MMR';
+        }
+
+        function playerAvatarMarkup(player) {
+            const avatarUrl = safeAvatarUrl(player.avatar_url || player.avatarUrl || '');
+            if (avatarUrl) {
+                return `<img class="lb-avatar" src="${escapeHtml(avatarUrl)}" alt="${escapeHtml(player.display_name || player.id || 'Player')}">`;
+            }
+            const visual = getPlayerAvatarVisual(player);
+            return `<span class="lb-avatar-fallback" style="background:${escapeHtml(visual.color)};border-radius:999px;">${escapeHtml(visual.emoji)}</span>`;
+        }
+
+        function refreshRankedMetricUi() {
+            const metric = state.ranked.metric || 'mmr';
+            const mmrBtn = document.getElementById('btn-ranked-metric-mmr');
+            const wordsBtn = document.getElementById('btn-ranked-metric-words');
+            const longestBtn = document.getElementById('btn-ranked-metric-longest');
+            mmrBtn.className = `btn btn-ghost metric-btn ${metric === 'mmr' ? 'active' : ''}`;
+            wordsBtn.className = `btn btn-ghost metric-btn ${metric === 'words' ? 'active' : ''}`;
+            longestBtn.className = `btn btn-ghost metric-btn ${metric === 'longest_game' ? 'active' : ''}`;
+        }
+
+        function updateHomeRankPreview(profile) {
+            const safeProfile = profile || {
+                rank_label: 'Bronze',
+                mmr: 1000,
+                wins: 0,
+                losses: 0
+            };
+            const badge = document.getElementById('home-rank-badge');
+            badge.className = `ranked-badge ${getRankClass(safeProfile.rank_label)}`;
+            badge.textContent = translateRankLabel(safeProfile.rank_label || 'Bronze');
+            document.getElementById('home-rank-mmr').textContent = `${safeProfile.mmr || 1000}`;
+            document.getElementById('home-rank-record').textContent = `${safeProfile.wins || 0}მ / ${safeProfile.losses || 0}წ`;
+        }
+
+        async function registerRankedProfile() {
+            if (!state.playerId) return;
+            try {
+                const response = await apiRequest('/api/ranked/register', {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        playerId: state.playerId,
+                        playerName: state.playerName || 'Player'
+                    })
+                });
+                if (!response.ok) return;
+                const data = await response.json();
+                state.ranked.profile = data.profile || null;
+                updateHomeRankPreview(data.profile);
+            } catch (error) {
+                console.warn('Could not register ranked profile:', error);
+            }
+        }
+
+        async function loadLeaderboard(metric = 'mmr') {
+            try {
+                const response = await apiRequest(`/api/ranked/leaderboard?metric=${encodeURIComponent(metric)}&limit=100`);
+                const data = await response.json();
+                state.ranked.metric = metric;
+                state.ranked.leaderboard = data.leaderboard || [];
+                refreshRankedMetricUi();
+                const body = document.getElementById('ranked-leaderboard-body');
+                if (state.ranked.leaderboard.length === 0) {
+                    body.innerHTML = `<div class="match-item"><div class="match-title">ლიდერბორდი ჯერ ცარიელია</div><div class="lb-pill">0</div><div class="match-sub">ითამაშეთ პირველი თამაში</div></div>`;
+                    return;
+                }
+
+                body.innerHTML = state.ranked.leaderboard.map((player) => {
+                    const rowClass = player.rank === 1 ? 'top-1' : (player.rank <= 3 ? `top-${player.rank}` : '');
+                    const displayName = escapeHtml(player.display_name || player.id || 'Player');
+                    const sub = player.username ? `@${escapeHtml(player.username)}` : `${player.wins || 0}მ / ${player.losses || 0}წ`;
+                    return `
+                    <div class="lb-item ${rowClass}">
+                        <div class="lb-rank">#${player.rank || '-'}</div>
+                        <div class="lb-player">
+                            ${playerAvatarMarkup(player)}
+                            <div class="lb-meta">
+                                <div class="lb-name">${displayName}</div>
+                                <div class="lb-sub">${sub}</div>
+                            </div>
+                        </div>
+                        <div class="lb-stats">
+                            <span class="lb-pill"><strong>${player.mmr || 1000}</strong> MMR</span>
+                            <span class="lb-pill">${escapeHtml(translateRankLabel(player.rank_label || 'Bronze'))}</span>
+                            <span class="lb-pill">${player.total_guessed_words || 0} სიტყვა</span>
+                            <span class="lb-pill">${formatDuration(player.longest_game_seconds || 0)}</span>
+                        </div>
+                    </div>`;
+                }).join('');
+            } catch (error) {
+                showToast('ლიდერბორდის ჩატვირთვა ვერ მოხერხდა', 'error');
+            }
+        }
+
+        async function loadMyProfile() {
+            if (!state.playerId) return;
+            try {
+                const response = await apiRequest(`/api/ranked/profile/${encodeURIComponent(state.playerId)}`);
+                const data = await response.json();
+                state.ranked.profile = data.profile || null;
+                updateHomeRankPreview(data.profile);
+
+                const profileSummary = document.getElementById('profile-summary');
+                const profile = data.profile || {};
+                profileSummary.innerHTML = `
+                    <div class="ranked-row" style="margin-bottom:10px;">
+                        ${playerAvatarMarkup(profile)}
+                        <div>
+                            <div class="ranked-value" style="font-size:1rem;">${escapeHtml(profile.display_name || state.playerName || 'მოთამაშე')}</div>
+                            <div class="ranked-label">${metricLabel(state.ranked.metric)}</div>
+                        </div>
+                    </div>
+                    <div class="profile-summary-grid">
+                        <div class="profile-kv"><span class="ranked-label">რანგი</span><div class="ranked-badge ${getRankClass(profile.rank_label)}">${escapeHtml(translateRankLabel(profile.rank_label || 'Bronze'))}</div></div>
+                        <div class="profile-kv"><span class="ranked-label">MMR</span><div class="ranked-value">${profile.mmr || 1000}</div></div>
+                        <div class="profile-kv"><span class="ranked-label">სტატისტიკა</span><div class="ranked-value">${profile.wins || 0}მ / ${profile.losses || 0}წ</div></div>
+                        <div class="profile-kv"><span class="ranked-label">თამაშები</span><div class="ranked-value">${profile.games_played || 0}</div></div>
+                        <div class="profile-kv"><span class="ranked-label">სულ სიტყვები</span><div class="ranked-value">${profile.total_guessed_words || 0}</div></div>
+                        <div class="profile-kv"><span class="ranked-label">ყველაზე გრძელი თამაში</span><div class="ranked-value">${formatDuration(profile.longest_game_seconds || 0)}</div></div>
+                    </div>
+                `;
+
+                const rows = (data.matches || []).map(match => {
+                    const rankings = parseRankings(match.rankings);
+                    const winner = rankings.find((entry) => entry && entry.id === match.winner_player_id);
+                    const winnerName = winner?.name || match.winner_player_id || '—';
+                    const place = rankings.find((entry) => entry && entry.id === state.playerId)?.rank || null;
+                    const didWin = Boolean(match.winner_player_id && match.winner_player_id === state.playerId);
+                    const matchType = match.is_ranked ? 'რეიტინგული მატჩი' : 'ჩვეულებრივი მატჩი';
+                    const endedAt = formatMatchDate(match.ended_at);
+                    const resultText = didWin ? 'მოგება' : (match.winner_player_id ? 'წაგება' : 'უცნობი');
+                    const placeText = place ? `ადგილი #${place}` : '';
+                    return `
+                        <div class="match-item">
+                            <div>
+                                <div class="match-title">${matchType}</div>
+                                <div class="match-sub">${endedAt || 'თარიღი უცნობია'} • გამარჯვებული: ${escapeHtml(winnerName)}</div>
+                            </div>
+                            <div class="match-pills">
+                                <span class="lb-pill">${formatDuration(match.duration_seconds || 0)}</span>
+                                <span class="lb-pill">${match.total_words || 0} სიტყვა</span>
+                                <span class="lb-pill">${resultText}${placeText ? ` • ${placeText}` : ''}</span>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+                document.getElementById('ranked-profile-matches').innerHTML = rows || `<div class="match-item"><div class="match-title">მატჩები ჯერ არ არის</div><span class="lb-pill">—</span><span class="match-sub">თამაში დაიწყე</span></div>`;
+            } catch (error) {
+                showToast('პროფილის ჩატვირთვა ვერ მოხერხდა', 'error');
+            }
+        }
+
+        function setRankedTab(tab) {
+            state.ranked.activeTab = tab;
+            document.getElementById('ranked-leaderboard-view').style.display = tab === 'leaderboard' ? 'block' : 'none';
+            document.getElementById('ranked-profile-view').style.display = tab === 'profile' ? 'block' : 'none';
+            document.getElementById('ranked-metrics').style.display = tab === 'leaderboard' ? 'flex' : 'none';
+            document.getElementById('btn-ranked-tab-leaderboard').className = `btn ${tab === 'leaderboard' ? 'btn-secondary tab-btn active' : 'btn-ghost tab-btn'}`;
+            document.getElementById('btn-ranked-tab-profile').className = `btn ${tab === 'profile' ? 'btn-secondary tab-btn active' : 'btn-ghost tab-btn'}`;
+        }
+
+        async function openRankedModal(tab = 'leaderboard') {
+            setRankedTab(tab);
+            document.getElementById('ranked-modal').classList.add('active');
+            await loadLeaderboard(state.ranked.metric || 'mmr');
+            await loadMyProfile();
+        }
+
         // ============ SOCKET HANDLERS ============
         socket.on('connect', () => {
             console.log('🔌 Connected to server');
             updateConnectionStatus(true);
+            syncRankedConfig();
+            socket.emit('player:auth', {
+                playerId: state.playerId,
+                playerName: state.playerName || 'Guest',
+                authToken: state.auth.accessToken || null
+            });
 
             // Try to restore session if we have saved data
             if (state.playerId || state.currentLobby) {
@@ -2802,7 +4394,8 @@
                     playerId: state.playerId,
                     playerName: state.playerName,
                     lobbyId: state.currentLobby?.lobbyId,
-                    lobbyCode: state.currentLobby?.lobbyCode
+                    lobbyCode: state.currentLobby?.lobbyCode,
+                    authToken: state.auth.accessToken || null
                 });
             }
         });
@@ -2820,13 +4413,50 @@
         socket.on('player:authed', (data) => {
             state.playerId = data.playerId;
             localStorage.setItem('bombparty_player_id', data.playerId);
+            if (data.playerName) {
+                state.playerName = data.playerName;
+                localStorage.setItem('bombparty_player_name', data.playerName);
+            }
+            if (data.provider) {
+                state.auth.provider = data.provider;
+                state.auth.isDiscord = data.provider === 'discord';
+                if (state.auth.isDiscord) {
+                    state.auth.homeEntered = true;
+                    state.auth.discordUser = {
+                        ...(state.auth.discordUser || {}),
+                        displayName: data.playerName || state.playerName || '',
+                        username: data.username || state.auth.discordUser?.username || '',
+                        avatar: data.avatarUrl || state.auth.discordUser?.avatar || ''
+                    };
+                }
+            }
+            updateAuthUi();
             console.log('✅ Got player ID:', data.playerId);
+            registerRankedProfile();
         });
 
         socket.on('player:restored', (data) => {
             console.log('🔄 Session restored:', data);
             state.playerId = data.playerId;
             localStorage.setItem('bombparty_player_id', data.playerId);
+            if (data.playerName) {
+                state.playerName = data.playerName;
+                localStorage.setItem('bombparty_player_name', data.playerName);
+            }
+            if (data.provider) {
+                state.auth.provider = data.provider;
+                state.auth.isDiscord = data.provider === 'discord';
+                if (state.auth.isDiscord) {
+                    state.auth.homeEntered = true;
+                    state.auth.discordUser = {
+                        ...(state.auth.discordUser || {}),
+                        displayName: data.playerName || state.playerName || '',
+                        username: data.username || state.auth.discordUser?.username || '',
+                        avatar: data.avatarUrl || state.auth.discordUser?.avatar || ''
+                    };
+                }
+            }
+            updateAuthUi();
 
             if (data.inLobby) {
                 state.currentLobby = {
@@ -2840,6 +4470,7 @@
                 showScreen('game');
                 showToast('თამაშთან კავშირი აღდგა!', 'success');
             }
+            registerRankedProfile();
         });
 
         socket.on('player:restore-failed', (data) => {
@@ -2847,15 +4478,25 @@
             // Clear saved lobby data
             state.currentLobby = null;
             state.playerId = data.newPlayerId || null;
+            state.auth.provider = 'guest';
+            state.auth.isDiscord = false;
+            state.auth.discordUser = null;
+            state.auth.homeEntered = false;
+            state.auth.guestInputVisible = false;
             localStorage.removeItem('bombparty_current_lobby');
             if (data.newPlayerId) {
                 localStorage.setItem('bombparty_player_id', data.newPlayerId);
             }
+            updateAuthUi();
             showToast('სესია ვადაგასულია - თავიდან შედით', 'error');
         });
 
         socket.on('error', (data) => {
             showToast(data.message, 'error');
+        });
+
+        socket.on('music:proposal-sent', () => {
+            showToast('სიმღერის შეთავაზება ჰოსტს გაეგზავნა', 'success');
         });
 
         socket.on('lobby:list', (lobbies) => {
@@ -2917,7 +4558,7 @@
         });
 
         socket.on('game:end', (data) => {
-            handleGameEnd(data.winner, data.rankings);
+            handleGameEnd(data.winner, data.rankings, data.ranked || null);
         });
 
         // ============ LOBBY RENDERING ============
@@ -2965,11 +4606,93 @@
             return div.innerHTML;
         }
 
+        function extractYouTubeVideoId(url) {
+            if (!url || typeof url !== 'string') return null;
+            try {
+                const parsed = new URL(url.trim());
+                const host = (parsed.hostname || '').toLowerCase();
+
+                if (host === 'youtu.be') {
+                    const id = (parsed.pathname || '').replace(/\//g, '');
+                    return /^[a-zA-Z0-9_-]{11}$/.test(id) ? id : null;
+                }
+
+                if (host.endsWith('youtube.com')) {
+                    const v = parsed.searchParams.get('v');
+                    if (v && /^[a-zA-Z0-9_-]{11}$/.test(v)) return v;
+                    const parts = (parsed.pathname || '').split('/').filter(Boolean);
+                    const shorts = parts.indexOf('shorts');
+                    if (shorts >= 0 && /^[a-zA-Z0-9_-]{11}$/.test(parts[shorts + 1] || '')) return parts[shorts + 1];
+                    const embed = parts.indexOf('embed');
+                    if (embed >= 0 && /^[a-zA-Z0-9_-]{11}$/.test(parts[embed + 1] || '')) return parts[embed + 1];
+                }
+            } catch (e) {
+                return null;
+            }
+            return null;
+        }
+
+        function renderMusicState(music = null) {
+            const nowPlaying = document.getElementById('now-playing');
+            const guestPanel = document.getElementById('guest-music-panel');
+            const proposalBox = document.getElementById('music-proposals');
+            const queueBox = document.getElementById('music-queue');
+
+            const current = music?.currentTrack || null;
+            if (current) {
+                nowPlaying.textContent = `ახლა უკრავს: ${current.title} (დაამატა: ${current.submittedByName || 'მოთამაშე'})`;
+            } else {
+                nowPlaying.textContent = 'ახლა უკრავს: ნაგულისხმევი ფონური მუსიკა';
+            }
+
+            if (state.isHost) {
+                guestPanel.style.display = 'none';
+                proposalBox.innerHTML = (music?.proposals || []).map((proposal) => {
+                    const track = proposal.track || {};
+                    return `
+                        <div class="music-row">
+                            <div class="music-row-title">
+                                <strong>${escapeHtml(track.title || 'YouTube track')}</strong>
+                                <span>ავტორი: ${escapeHtml(track.submittedByName || 'მოთამაშე')}</span>
+                            </div>
+                            <div class="music-row-actions">
+                                <button type="button" title="Approve & Play" data-music-action="approve-play" data-proposal-id="${proposal.id}">▶</button>
+                                <button type="button" title="Approve to Queue" data-music-action="approve" data-proposal-id="${proposal.id}">+</button>
+                                <button type="button" title="Reject" data-music-action="reject" data-proposal-id="${proposal.id}">✕</button>
+                            </div>
+                        </div>
+                    `;
+                }).join('') || '<div class="music-row"><div class="music-row-title"><span>ჯერ შემოთავაზებები არ არის</span></div></div>';
+            } else {
+                guestPanel.style.display = 'block';
+                proposalBox.innerHTML = '';
+            }
+
+            queueBox.innerHTML = (music?.queue || []).map((track) => `
+                <div class="music-row ${current?.id === track.id ? 'active' : ''}">
+                    <div class="music-row-title">
+                        <strong>${escapeHtml(track.title || 'YouTube track')}</strong>
+                        <span>by ${escapeHtml(track.submittedByName || 'player')}</span>
+                    </div>
+                    ${state.isHost ? `
+                    <div class="music-row-actions">
+                        <button type="button" title="Play now" data-music-action="play" data-track-id="${track.id}">▶</button>
+                        <button type="button" title="Move up" data-music-action="up" data-track-id="${track.id}">↑</button>
+                        <button type="button" title="Move down" data-music-action="down" data-track-id="${track.id}">↓</button>
+                        <button type="button" title="Remove" data-music-action="remove" data-track-id="${track.id}">✕</button>
+                    </div>` : ''}
+                </div>
+            `).join('') || '<div class="music-row"><div class="music-row-title"><span>რიგი ცარიელია</span></div></div>';
+
+            AudioSystem.syncMusicSource();
+        }
+
         // ============ GAME RENDERING ============
         function renderGameState(data) {
             const waitingOverlay = document.getElementById('waiting-overlay');
             const gameOverOverlay = document.getElementById('game-over-overlay');
             const input = document.getElementById('game-input');
+            renderMusicState(data.music || null);
 
             // Update waiting overlay
             if (data.state === 'waiting') {
@@ -2988,6 +4711,7 @@
                     document.getElementById('set-lives').value = data.settings.startLives;
                     document.getElementById('set-time').value = data.settings.turnTime;
                     document.getElementById('set-players').value = data.settings.maxPlayers;
+                    document.getElementById('set-ranked').checked = Boolean(data.settings.rankedMode);
                 } else {
                     hostControls.style.display = 'none';
                 }
@@ -3030,13 +4754,22 @@
 
         function renderWaitingPlayers(players) {
             const container = document.getElementById('player-list-waiting');
-            container.innerHTML = players.map(p => `
+            container.innerHTML = players.map(p => {
+                const visual = getPlayerAvatarVisual(p);
+                return `
         <div class="player-chip ${p.isReady ? 'ready' : ''}">
-            <span class="avatar">${p.avatar}</span>
-            <span class="name">${escapeHtml(p.name)}</span>
+            ${safeAvatarUrl(p.avatarUrl)
+                    ? `<img class="avatar" src="${escapeHtml(p.avatarUrl)}" alt="${escapeHtml(p.name)}">`
+                    : `<span class="avatar" style="background:${escapeHtml(visual.color)}">${escapeHtml(visual.emoji)}</span>`
+                }
+            <span class="name-meta">
+                <span class="name">${escapeHtml(p.name)}</span>
+                ${p.provider === 'discord' && p.username ? `<span class="username">@${escapeHtml(p.username)}</span>` : ''}
+            </span>
             <span class="ready-dot"></span>
         </div>
-    `).join('');
+    `;
+            }).join('');
         }
 
         function renderPlayersCircle(players, currentTurnIndex, hostId) {
@@ -3063,6 +4796,7 @@
                 if (isDead) classes.push('dead');
                 if (isDisconnected) classes.push('disconnected');
                 if (player.streak >= 3) classes.push('on-fire'); // Fire effect for 3+ streak
+                const visual = getPlayerAvatarVisual(player);
 
                 // Dynamic hearts based on current lives (support for bonus HP up to 5)
                 const maxHearts = Math.max(3, player.lives);
@@ -3075,14 +4809,18 @@
                 <div class="typing-bubble"></div>
                 <div class="player-avatar-wrap">
                     <div class="player-lives">${hearts}</div>
-                    <div class="player-avatar" style="background: ${player.color}">
-                        ${player.avatar}
+                    <div class="player-avatar" style="background: ${visual.color}">
+                        ${safeAvatarUrl(player.avatarUrl)
+                            ? `<img class="player-avatar-img" src="${escapeHtml(player.avatarUrl)}" alt="${escapeHtml(player.name)}">`
+                            : escapeHtml(visual.emoji)
+                        }
                         <span class="death-skull">💀</span>
                         <span class="disconnect-icon">📡</span>
                     </div>
                     ${isHost ? '<span class="host-badge">ჰოსტი</span>' : ''}
                 </div>
                 <div class="player-name">${escapeHtml(player.name)}</div>
+                ${player.provider === 'discord' && player.username ? `<div class="player-username">@${escapeHtml(player.username)}</div>` : ''}
                 <div class="player-score">${score} pts${player.streak >= 2 ? ` <span class="streak-badge">🔥${player.streak}</span>` : ''}</div>
             </div>
         `;
@@ -3100,13 +4838,13 @@
             if (!el) return;
 
             if (!difficulty) {
-                el.textContent = 'Level 0 | Min 2';
+                el.textContent = 'ლეველი 0 | წთ 2';
                 return;
             }
 
             const level = Math.max(0, difficulty.level || 0);
             const minWordLength = Math.max(2, difficulty.minWordLength || 2);
-            el.textContent = `Level ${level} | Min ${minWordLength}`;
+            el.textContent = `ლეველი ${level} | წთ ${minWordLength}`;
         }
 
         let lastTickSecond = -1;
@@ -3242,7 +4980,7 @@
             showToast(reason, 'error');
         }
 
-        function handleGameEnd(winner, rankings = []) {
+        function handleGameEnd(winner, rankings = [], ranked = null) {
             const overlay = document.getElementById('game-over-overlay');
             const rankingsList = document.getElementById('rankings-list');
             const badge = document.getElementById('winner-badge');
@@ -3252,6 +4990,7 @@
             const winnerAvatar = document.getElementById('winner-avatar');
             const winnerScore = document.getElementById('winner-score');
             const isPlayerWinner = Boolean(winner && winner.id === state.playerId);
+            const mmrByPlayer = new Map((ranked?.mmrChanges || []).map(item => [item.id, item]));
 
             // Play appropriate sound
             if (isPlayerWinner) {
@@ -3264,7 +5003,9 @@
 
             if (winner) {
                 overlay.classList.add(isPlayerWinner ? 'outcome-winner' : 'outcome-loser');
-                winnerAvatar.textContent = winner.avatar;
+                const winnerVisual = getPlayerAvatarVisual(winner);
+                winnerAvatar.textContent = winnerVisual.emoji;
+                winnerAvatar.style.background = winnerVisual.color;
                 winnerName.textContent = isPlayerWinner ? 'შენ გაიმარჯვე!' : `${winner.name} იმარჯვებს!`;
                 winnerScore.textContent = `${winner.score || 0} ქულა`;
 
@@ -3283,6 +5024,7 @@
                 title.textContent = 'რაუნდი დასრულდა';
                 subtitle.textContent = 'ამ თამაშში გამარჯვებული არ გამოვლინდა.';
                 winnerAvatar.textContent = '🤷';
+                winnerAvatar.style.background = 'rgba(255, 255, 255, 0.06)';
                 winnerName.textContent = 'გამარჯვებული არ არის!';
                 winnerScore.textContent = '';
             }
@@ -3295,11 +5037,12 @@
                     const medal = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : `#${index + 1}`;
                     const isCurrentPlayer = player.id === state.playerId;
                     const displayName = isCurrentPlayer ? `${escapeHtml(player.name)} (შენ)` : escapeHtml(player.name);
+                    const visual = getPlayerAvatarVisual(player);
 
                     return `
                 <div class="ranking-item ${itemClass} ${isCurrentPlayer ? 'you' : ''}">
                     <span class="ranking-position ${positionClass}">${medal}</span>
-                    <span class="ranking-avatar">${player.avatar}</span>
+                    <span class="ranking-avatar" style="background:${escapeHtml(visual.color)}">${escapeHtml(visual.emoji)}</span>
                     <div class="ranking-info">
                         <div class="ranking-name">${displayName}</div>
                         <div class="ranking-stats">${player.wordsCompleted || 0} სიტყვა • ${player.lives || 0} ❤️ დარჩა</div>
@@ -3313,6 +5056,17 @@
             }
 
             overlay.classList.add('active');
+
+            if (ranked?.isRanked) {
+                const myMmr = mmrByPlayer.get(state.playerId);
+                if (myMmr) {
+                    showToast(`რეიტინგი: MMR ${myMmr.previousMmr} -> ${myMmr.mmr} (${myMmr.delta >= 0 ? '+' : ''}${myMmr.delta})`, myMmr.delta >= 0 ? 'success' : 'error');
+                } else {
+                    showToast('რეიტინგული თამაში დასრულდა. ლიდერბორდი განახლდა.', 'success');
+                }
+                loadMyProfile();
+                loadLeaderboard(state.ranked.metric || 'mmr');
+            }
 
             // Celebration particles
             for (let i = 0; i < 5; i++) {
@@ -3332,7 +5086,7 @@
             socket.emit('lobby:join', { lobbyCode: code, playerName: name });
         }
 
-        function createLobby(lobbyName, isPublic) {
+        function createLobby(lobbyName, isPublic, musicUrl = '') {
             const playerName = document.getElementById('player-name').value.trim() || state.playerName || 'Guest';
             state.playerName = playerName;
             localStorage.setItem('bombparty_player_name', playerName);
@@ -3341,7 +5095,8 @@
             socket.emit('lobby:create', {
                 playerName,
                 lobbyName: lobbyName || `${playerName}'s Lobby`,
-                isPublic: isPublic !== false
+                isPublic: isPublic !== false,
+                musicUrl: musicUrl || ''
             });
         }
 
@@ -3349,6 +5104,9 @@
             socket.emit('lobby:leave');
             state.currentLobby = null;
             state.gameState = null;
+            AudioSystem.stopYoutube();
+            document.getElementById('host-music-modal').classList.remove('active');
+            AudioSystem.syncMusicSource();
             localStorage.removeItem('bombparty_current_lobby');
             showScreen('lobby');
             socket.emit('lobby:refresh');
@@ -3360,7 +5118,8 @@
             socket.emit('lobby:settings', {
                 startLives: parseInt(document.getElementById('set-lives').value),
                 turnTime: parseInt(document.getElementById('set-time').value),
-                maxPlayers: parseInt(document.getElementById('set-players').value)
+                maxPlayers: parseInt(document.getElementById('set-players').value),
+                rankedMode: document.getElementById('set-ranked').checked
             });
         }
 
@@ -3378,9 +5137,43 @@
             AudioSystem.updateUI();
         });
 
+        document.getElementById('btn-auth-guest').addEventListener('click', () => {
+            AudioSystem.playButtonClick();
+            state.auth.homeEntered = true;
+            state.auth.guestInputVisible = true;
+            updateAuthUi();
+            document.getElementById('player-name').focus();
+        });
+
+        document.getElementById('btn-discord-login').addEventListener('click', () => {
+            AudioSystem.playButtonClick();
+            startDiscordAuth();
+        });
+
+        document.getElementById('btn-auth-logout').addEventListener('click', async () => {
+            AudioSystem.playButtonClick();
+            if (state.auth.isDiscord) {
+                await logoutDiscord();
+                return;
+            }
+            logoutGuestMode();
+        });
+
+        document.getElementById('btn-open-leaderboard').addEventListener('click', async () => {
+            AudioSystem.playButtonClick();
+            await openRankedModal('leaderboard');
+        });
+
+        document.getElementById('btn-open-profile').addEventListener('click', async () => {
+            AudioSystem.playButtonClick();
+            await openRankedModal('profile');
+        });
+
         document.getElementById('btn-browse').addEventListener('click', () => {
             AudioSystem.playButtonClick();
-            const name = document.getElementById('player-name').value.trim();
+            const name = state.auth.isDiscord
+                ? (state.playerName || document.getElementById('player-name').value.trim())
+                : document.getElementById('player-name').value.trim();
             if (!name) {
                 AudioSystem.playError();
                 showToast('გთხოვთ ჩაწეროთ სახელი', 'error');
@@ -3388,18 +5181,22 @@
             }
             state.playerName = name;
             localStorage.setItem('bombparty_player_name', name);
+            registerRankedProfile();
             showScreen('lobby');
             socket.emit('lobby:refresh');
         });
 
         document.getElementById('btn-quick-create').addEventListener('click', () => {
             AudioSystem.playButtonClick();
-            const name = document.getElementById('player-name').value.trim();
+            const name = state.auth.isDiscord
+                ? (state.playerName || document.getElementById('player-name').value.trim())
+                : document.getElementById('player-name').value.trim();
             if (!name) {
                 AudioSystem.playError();
                 showToast('გთხოვთ ჩაწეროთ სახელი', 'error');
                 return;
             }
+            registerRankedProfile();
             createLobby(null, true);
         });
 
@@ -3411,11 +5208,12 @@
 
         document.getElementById('btn-refresh').addEventListener('click', () => {
             socket.emit('lobby:refresh');
-            showToast('Refreshed!', 'success');
+            showToast('განახლდა!', 'success');
         });
 
         document.getElementById('btn-create-lobby').addEventListener('click', () => {
             AudioSystem.playButtonClick();
+            document.getElementById('lobby-music-url').value = '';
             document.getElementById('create-modal').classList.add('active');
         });
 
@@ -3428,7 +5226,8 @@
             AudioSystem.playButtonClick();
             const lobbyName = document.getElementById('lobby-name').value.trim();
             const isPublic = document.getElementById('lobby-public').checked;
-            createLobby(lobbyName, isPublic);
+            const musicUrl = document.getElementById('lobby-music-url').value.trim();
+            createLobby(lobbyName, isPublic, musicUrl);
             document.getElementById('create-modal').classList.remove('active');
         });
 
@@ -3466,6 +5265,61 @@
             socket.emit('game:start');
         });
 
+        document.getElementById('btn-host-add-song').addEventListener('click', () => {
+            const input = document.getElementById('host-music-url');
+            const url = input.value.trim();
+            if (!extractYouTubeVideoId(url)) {
+                showToast('გთხოვთ ჩასვათ სწორი YouTube ბმული', 'error');
+                return;
+            }
+            socket.emit('music:host-add', { url, playNow: true });
+            input.value = '';
+        });
+
+        document.getElementById('btn-host-next-song').addEventListener('click', () => {
+            socket.emit('music:queue:next');
+        });
+
+        document.getElementById('btn-propose-song').addEventListener('click', () => {
+            const input = document.getElementById('guest-music-url');
+            const url = input.value.trim();
+            if (!extractYouTubeVideoId(url)) {
+                showToast('გთხოვთ ჩასვათ სწორი YouTube ბმული', 'error');
+                return;
+            }
+            socket.emit('music:propose', { url });
+            input.value = '';
+        });
+
+        document.getElementById('music-proposals').addEventListener('click', (e) => {
+            const btn = e.target.closest('button[data-music-action]');
+            if (!btn) return;
+            const action = btn.dataset.musicAction;
+            const proposalId = btn.dataset.proposalId;
+            if (!proposalId) return;
+
+            if (action === 'approve-play') {
+                socket.emit('music:proposal:approve', { proposalId, playNow: true });
+            } else if (action === 'approve') {
+                socket.emit('music:proposal:approve', { proposalId, playNow: false });
+            } else if (action === 'reject') {
+                socket.emit('music:proposal:reject', { proposalId });
+            }
+        });
+
+        document.getElementById('music-queue').addEventListener('click', (e) => {
+            const btn = e.target.closest('button[data-music-action]');
+            if (!btn) return;
+            const action = btn.dataset.musicAction;
+            const trackId = btn.dataset.trackId;
+            if (!trackId) return;
+
+            if (action === 'play') socket.emit('music:queue:play', { trackId });
+            if (action === 'up') socket.emit('music:queue:move', { trackId, direction: 'up' });
+            if (action === 'down') socket.emit('music:queue:move', { trackId, direction: 'down' });
+            if (action === 'remove') socket.emit('music:queue:remove', { trackId });
+        });
+
         // Audio settings
         document.getElementById('btn-audio').addEventListener('click', () => {
             AudioSystem.playButtonClick();
@@ -3478,11 +5332,52 @@
             document.getElementById('audio-modal').classList.remove('active');
         });
 
+        document.getElementById('btn-close-ranked').addEventListener('click', () => {
+            AudioSystem.playButtonClick();
+            document.getElementById('ranked-modal').classList.remove('active');
+        });
+
+        document.getElementById('btn-open-host-music').addEventListener('click', () => {
+            AudioSystem.playButtonClick();
+            document.getElementById('host-music-modal').classList.add('active');
+        });
+
+        document.getElementById('btn-close-host-music').addEventListener('click', () => {
+            AudioSystem.playButtonClick();
+            document.getElementById('host-music-modal').classList.remove('active');
+        });
+
+        document.getElementById('btn-ranked-refresh').addEventListener('click', async () => {
+            AudioSystem.playButtonClick();
+            await loadLeaderboard(state.ranked.metric || 'mmr');
+            await loadMyProfile();
+        });
+
+        document.getElementById('btn-ranked-tab-leaderboard').addEventListener('click', () => setRankedTab('leaderboard'));
+        document.getElementById('btn-ranked-tab-profile').addEventListener('click', () => setRankedTab('profile'));
+        document.getElementById('btn-ranked-metric-mmr').addEventListener('click', () => loadLeaderboard('mmr'));
+        document.getElementById('btn-ranked-metric-words').addEventListener('click', () => loadLeaderboard('words'));
+        document.getElementById('btn-ranked-metric-longest').addEventListener('click', () => loadLeaderboard('longest_game'));
+
         // Close audio modal when clicking outside
         document.getElementById('audio-modal').addEventListener('click', (e) => {
             if (e.target.id === 'audio-modal') {
                 AudioSystem.playButtonClick();
                 document.getElementById('audio-modal').classList.remove('active');
+            }
+        });
+
+        document.getElementById('ranked-modal').addEventListener('click', (e) => {
+            if (e.target.id === 'ranked-modal') {
+                AudioSystem.playButtonClick();
+                document.getElementById('ranked-modal').classList.remove('active');
+            }
+        });
+
+        document.getElementById('host-music-modal').addEventListener('click', (e) => {
+            if (e.target.id === 'host-music-modal') {
+                AudioSystem.playButtonClick();
+                document.getElementById('host-music-modal').classList.remove('active');
             }
         });
 
@@ -3509,7 +5404,7 @@
         });
 
         // Settings inputs
-        ['set-lives', 'set-time', 'set-players'].forEach(id => {
+        ['set-lives', 'set-time', 'set-players', 'set-ranked'].forEach(id => {
             document.getElementById(id).addEventListener('change', updateSettings);
         });
 
@@ -3550,6 +5445,21 @@
         if (state.playerName) {
             document.getElementById('player-name').value = state.playerName;
         }
+        updateAuthUi();
+        updateHomeRankPreview(null);
+        renderMmrInfoCard();
+        loadRankedInfo();
+        loadAuthSession().then(() => {
+            socket.emit('player:auth', {
+                playerId: state.playerId,
+                playerName: state.playerName || 'Guest',
+                authToken: state.auth.accessToken || null
+            });
+            if (state.playerId) {
+                registerRankedProfile();
+                loadMyProfile();
+            }
+        });
 
         // ============ MOBILE KEYBOARD HANDLING ============
         const gameArena = document.getElementById('game-arena');
@@ -3612,3 +5522,17 @@
 </body>
 
 </html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
