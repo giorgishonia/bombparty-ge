@@ -1,0 +1,428 @@
+/* Responsive layout fixes only. The original visual design stays untouched. */
+
+html {
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+}
+
+body {
+    min-width: 280px;
+}
+
+button,
+input,
+label {
+    touch-action: manipulation;
+}
+
+.screen {
+    padding-top: max(20px, env(safe-area-inset-top));
+    padding-right: max(20px, env(safe-area-inset-right));
+    padding-bottom: max(20px, env(safe-area-inset-bottom));
+    padding-left: max(20px, env(safe-area-inset-left));
+}
+
+.modal-overlay {
+    padding-top: max(14px, env(safe-area-inset-top));
+    padding-right: max(14px, env(safe-area-inset-right));
+    padding-bottom: max(14px, env(safe-area-inset-bottom));
+    padding-left: max(14px, env(safe-area-inset-left));
+}
+
+.modal {
+    width: min(100%, 480px);
+    max-height: calc(100dvh - 28px);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+}
+
+#game-screen.active {
+    display: grid;
+    grid-template-rows: auto minmax(0, 1fr);
+    height: 100dvh;
+    min-height: 0;
+}
+
+.game-header {
+    position: relative;
+    z-index: 120;
+    padding-top: max(16px, env(safe-area-inset-top));
+    padding-right: max(24px, env(safe-area-inset-right));
+    padding-left: max(24px, env(safe-area-inset-left));
+}
+
+.game-arena {
+    width: 100%;
+    height: 100%;
+    min-height: 0;
+}
+
+.players-circle {
+    inset: 0;
+}
+
+.waiting-overlay {
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding: 28px max(16px, env(safe-area-inset-right)) max(28px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left));
+}
+
+.game-input-wrapper {
+    padding-right: max(20px, env(safe-area-inset-right));
+    padding-bottom: max(35px, env(safe-area-inset-bottom));
+    padding-left: max(20px, env(safe-area-inset-left));
+}
+
+@media (max-width: 768px) {
+    .screen {
+        padding: 16px;
+        padding-top: max(16px, env(safe-area-inset-top));
+        padding-right: max(16px, env(safe-area-inset-right));
+        padding-bottom: max(16px, env(safe-area-inset-bottom));
+        padding-left: max(16px, env(safe-area-inset-left));
+    }
+
+    #home-screen {
+        justify-content: flex-start;
+        overflow-y: auto;
+        padding-top: max(28px, env(safe-area-inset-top));
+    }
+
+    .logo-container {
+        margin-bottom: 24px;
+    }
+
+    .home-form {
+        padding: clamp(22px, 6vw, 32px);
+    }
+
+    .screen-header {
+        align-items: flex-start;
+        gap: 14px;
+    }
+
+    .screen-header > div {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+        gap: 8px;
+    }
+
+    .screen-header .btn {
+        min-height: 44px;
+        padding: 10px 14px;
+        font-size: .78rem;
+    }
+
+    .lobby-card {
+        gap: 14px;
+    }
+
+    .game-header {
+        gap: 12px;
+        padding-top: max(10px, env(safe-area-inset-top));
+        padding-right: max(12px, env(safe-area-inset-right));
+        padding-bottom: 10px;
+        padding-left: max(12px, env(safe-area-inset-left));
+    }
+
+    .room-meta {
+        min-width: 0;
+    }
+
+    .now-playing {
+        max-width: 34vw;
+    }
+
+    .header-actions {
+        align-items: center;
+        gap: 6px;
+    }
+
+    .header-actions .btn {
+        min-height: 44px;
+    }
+
+    #btn-settings,
+    #btn-leave {
+        width: 44px;
+        min-width: 44px;
+        padding: 0;
+        overflow: hidden;
+        white-space: nowrap;
+        font-size: 0;
+    }
+
+    #btn-settings::before {
+        content: "⚙️";
+        font-size: 1.1rem;
+    }
+
+    #btn-leave::before {
+        content: "🚪";
+        font-size: 1.1rem;
+    }
+
+    .connection-status {
+        min-height: 44px;
+        padding: 0 10px;
+    }
+
+    .connection-status span {
+        display: none;
+    }
+
+    .player-name {
+        max-width: 100px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .settings-panel,
+    .host-controls,
+    .guest-music-panel {
+        width: min(100%, 440px);
+    }
+}
+
+@media (max-width: 520px) {
+    .logo-title {
+        font-size: clamp(2.25rem, 12vw, 3rem);
+    }
+
+    .logo-subtitle {
+        font-size: 1rem;
+    }
+
+    .auth-row {
+        grid-template-columns: 1fr;
+    }
+
+    .home-rank-actions {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .screen-header {
+        flex-direction: column;
+    }
+
+    .screen-header > div {
+        width: 100%;
+        justify-content: flex-start;
+    }
+
+    .screen-header .btn {
+        flex: 1 1 calc(50% - 4px);
+    }
+
+    .lobby-card {
+        align-items: flex-start;
+        padding: 16px;
+    }
+
+    .lobby-info {
+        min-width: 0;
+    }
+
+    .lobby-details {
+        min-width: 0;
+    }
+
+    .lobby-name {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .lobby-meta {
+        flex: 0 0 auto;
+        align-items: flex-end;
+    }
+
+    .join-section {
+        flex-direction: column;
+    }
+
+    .join-section .btn {
+        width: 100%;
+    }
+
+    .ranked-metrics {
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        padding-bottom: 5px;
+    }
+
+    .ranked-metrics .btn {
+        flex: 0 0 auto;
+    }
+
+    .modal {
+        padding: 22px 18px;
+    }
+
+    .modal h2 {
+        font-size: 1.4rem;
+    }
+
+    .room-meta {
+        display: none;
+    }
+
+    .room-code {
+        padding: 7px 10px;
+        font-size: .82rem;
+    }
+
+    .header-actions .btn,
+    #btn-settings,
+    #btn-leave {
+        width: 40px;
+        min-width: 40px;
+        min-height: 40px;
+        height: 40px;
+    }
+
+    .connection-status {
+        min-height: 40px;
+        padding: 0 7px;
+    }
+
+    .player-avatar {
+        width: 48px;
+        height: 48px;
+        font-size: 1.35rem;
+    }
+
+    .player-name {
+        max-width: 76px;
+        font-size: .68rem;
+        margin-top: 7px;
+    }
+
+    .player-score {
+        font-size: .65rem;
+    }
+
+    .player-lives {
+        top: -17px;
+        font-size: .65rem;
+    }
+
+    .typing-bubble {
+        top: -47px;
+        max-width: 105px;
+        font-size: .78rem;
+    }
+
+    .center-bomb {
+        margin-top: -9vh;
+    }
+
+    .bomb-container {
+        width: 118px;
+        height: 118px;
+    }
+
+    .bomb-wick {
+        width: 50px;
+        height: 50px;
+        top: -41px;
+    }
+
+    .syllable-display {
+        font-size: 1.65rem;
+    }
+
+    .timer-display {
+        margin-top: 0;
+        padding: 4px 12px;
+        font-size: 1.25rem;
+    }
+
+    .difficulty-display {
+        font-size: .6rem;
+    }
+
+    .arrow-spinner {
+        width: 218px;
+        height: 218px;
+        top: 39%;
+        margin-top: -109px;
+        margin-left: -109px;
+    }
+
+    .game-input-wrapper {
+        padding-top: 24px;
+        padding-right: max(14px, env(safe-area-inset-right));
+        padding-bottom: max(18px, env(safe-area-inset-bottom));
+        padding-left: max(14px, env(safe-area-inset-left));
+    }
+
+    .game-input {
+        max-width: 100%;
+        padding: 13px 16px;
+    }
+
+    .music-input-row {
+        flex-direction: column;
+    }
+
+    .music-input-row .btn {
+        width: 100%;
+    }
+}
+
+@media (max-height: 560px) and (orientation: landscape) {
+    .game-header {
+        padding-top: max(6px, env(safe-area-inset-top));
+        padding-bottom: 6px;
+    }
+
+    .game-arena {
+        min-height: 0;
+    }
+
+    .center-bomb {
+        transform: scale(.68);
+        margin-top: -2vh;
+    }
+
+    .players-circle {
+        transform: none;
+    }
+
+    .game-input-wrapper {
+        padding-top: 10px;
+        padding-bottom: max(8px, env(safe-area-inset-bottom));
+    }
+
+    .game-input {
+        padding: 9px 14px;
+    }
+
+    .waiting-overlay {
+        justify-content: flex-start;
+        padding-top: 18px;
+    }
+
+    .waiting-title {
+        font-size: 1.5rem;
+        margin-bottom: 6px;
+    }
+
+    .waiting-subtitle,
+    .player-list-waiting {
+        margin-bottom: 12px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: .01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: .01ms !important;
+    }
+}
