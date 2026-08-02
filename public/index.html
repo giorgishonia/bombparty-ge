@@ -3,9 +3,10 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport"
-        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>💣 Bomb Party - ქართული გამოცემა</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta name="theme-color" content="#12100f">
+    <meta name="description" content="Bomb Party — სწრაფი ქართული სიტყვების თამაში მეგობრებისთვის.">
+    <title>Bomb Party — ქართული სიტყვების თამაში</title>
     <link
         href="https://fonts.googleapis.com/css2?family=Noto+Sans+Georgian:wght@400;600;800;900&family=Space+Grotesk:wght@400;600;700&display=swap"
         rel="stylesheet">
@@ -2785,6 +2786,7 @@
             }
         }
     </style>
+    <link rel="stylesheet" href="/ui.css">
 </head>
 
 <body>
@@ -2799,9 +2801,10 @@
     <!-- ============ HOME SCREEN ============ -->
     <div id="home-screen" class="screen active">
         <div class="logo-container">
-            <div class="logo-bomb">💣</div>
+            <p class="brand-kicker">სიტყვა · სისწრაფე · გადარჩენა</p>
+            <div class="logo-bomb" aria-label="Bomb Party">BP</div>
             <h1 class="logo-title">BOMB PARTY</h1>
-            <p class="logo-subtitle">ქართული გამოცემა</p>
+            <p class="logo-subtitle">ქართული სიტყვების თამაში, სადაც პაუზა არ არსებობს.</p>
         </div>
 
         <div class="home-form">
@@ -3133,8 +3136,8 @@
 
         // Auto-detect server URL - works for local dev and production
         const SERVER_URL = window.location.origin;
-        const SUPABASE_URL = 'https://spzorjtfytprrqkibnto.supabase.co';
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNwem9yanRmeXRwcnJxa2libnRvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzEzNTI5NTgsImV4cCI6MjA4NjkyODk1OH0.T36NxsXzUkfcdwVCdEZEYeewqvwo3wJJBu2xUztQsPA';
+        const SUPABASE_URL = 'https://nipuqqysvfxogumwskqg.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5pcHVxcXlzdmZ4b2d1bXdza3FnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU2OTgwMjIsImV4cCI6MjEwMTI3NDAyMn0.tv9IdEEcrYMipYLbxmlvE-10l9Htt-yztMOp1FQJfgE';
         const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
             auth: {
                 persistSession: true,
@@ -4766,16 +4769,21 @@
 
         function renderPlayersCircle(players, currentTurnIndex, hostId) {
             const container = document.getElementById('players-circle');
-            const centerX = window.innerWidth / 2;
-            const yOffset = window.innerHeight < 700 ? 70 : 90; // Responsive offset
-            const centerY = (window.innerHeight / 2) - yOffset; // Offset upward to avoid input overlap
-            const radius = Math.min(window.innerWidth, window.innerHeight) * 0.28;
+            const bounds = container.getBoundingClientRect();
+            const width = bounds.width || window.innerWidth;
+            const height = bounds.height || window.innerHeight;
+            const compact = width < 640;
+            const landscape = height < 560;
+            const centerX = width / 2;
+            const centerY = compact ? height * 0.39 : height * 0.43;
+            const radiusX = Math.min(width * (compact ? 0.40 : 0.34), 430);
+            const radiusY = Math.min(height * (landscape ? 0.27 : compact ? 0.30 : 0.34), 310);
 
             container.innerHTML = players.map((player, index) => {
                 const angleDeg = (index * (360 / players.length)) - 90;
                 const angleRad = angleDeg * (Math.PI / 180);
-                const x = centerX + radius * Math.cos(angleRad);
-                const y = centerY + radius * Math.sin(angleRad);
+                const x = centerX + radiusX * Math.cos(angleRad);
+                const y = centerY + radiusY * Math.sin(angleRad);
 
                 const isActive = index === currentTurnIndex;
                 const isDead = player.lives <= 0;
